@@ -2,7 +2,7 @@
 name = "mig"
 version = "0.1.0"
 authors = ["ogata-k <ogtkzk712@gmail.com>"]
-description = "本ソフトウェアMigはmgファイルからLaravelやRailsのマイグレーションファイルを生成するソフトウェアです。"
+description = "This application is converter from mig-file to migration-file of Web framework."
 edition = "2018"
 
 [dependencies]
