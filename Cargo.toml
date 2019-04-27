@@ -2,6 +2,8 @@
 name = "mig"
 version = "0.1.0"
 authors = ["ogata-k <ogtkzk712@gmail.com>"]
+description = "本ソフトウェアMigはmgファイルからLaravelやRailsのマイグレーションファイルを生成するソフトウェアです。"
 edition = "2018"
 
 [dependencies]
+clap = "*"
