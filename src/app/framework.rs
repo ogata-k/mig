@@ -4,6 +4,11 @@ pub enum Framework {
 }
 
 pub fn to_framework_type(from: &str) -> Option<Framework> {
-    // TODO convert from string to Framework type is the type existing
-    return Some(Framework::Laravel);
+    if from.is_empty() { return None; }
+
+    let fw_opt = match from.to_lowercase().as_str() {
+        "laravel" => Some(Framework::Laravel),
+        _ => None,
+    };
+    return fw_opt;
 }

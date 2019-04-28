@@ -61,7 +61,6 @@ pub fn action_controller(matches: ArgMatches) -> Result<&str, &str> {
     // input_file_opt is not none!!!
     let input_file_path = PathBuf::from(input_file_opt.unwrap()); // TODO now, Provisional implementation
 
-    // TODO get framework type by framework's name
     let framework_opt = matches.value_of("TARGET_FW");
     if framework_opt.is_none() {
         return Err("target frame work is not specified. Why?");
@@ -69,7 +68,7 @@ pub fn action_controller(matches: ArgMatches) -> Result<&str, &str> {
     // framework_opt is not none!!
     let framework_type = to_framework_type(framework_opt.unwrap());
     if framework_type.is_none() {
-        return Err("the framework is not supported.");
+        return Err(" cannot analyze the framework or the framework is not supported.");
     }
 
     // TODO get output file path by using framework type
