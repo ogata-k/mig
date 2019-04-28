@@ -3,8 +3,8 @@ use std::path::PathBuf;
 use crate::app::framework::Framework;
 
 pub fn convert_to_migration_file(
-    input: PathBuf,
-    output: PathBuf,
+    input: &PathBuf,
+    output: &PathBuf,
     framework: Framework,
 ) -> Result<&'static str, &'static str> {
     // TODO convert from input file "input" to output file "output" with target framework "framework"
