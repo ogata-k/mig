@@ -1,16 +1,16 @@
-extern crate clap;
-
-use mig::app::{action_controller, mig_app};
+use mig::app::{action_controller, get_matches_safe, mig_app};
 
 fn main() {
-    let matches_rs = mig_app().get_matches_safe();
+    let matches_rs = get_matches_safe(mig_app());
     match matches_rs {
         Err(e) => {
             print!("{}", e);
         }
         Ok(matches) => {
-            action_controller(matches);
+            match action_controller(matches) {
+                Ok(msg) => println!("{}", msg),
+                Err(e) => println!("\nError:\n{}", e),
+            };
         }
     }
 }
-
