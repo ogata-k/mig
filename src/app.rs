@@ -29,7 +29,6 @@ pub fn mig_app<'a, 'b>() -> App<'a, 'b> {
         .arg(Arg::with_name("OUTPUT")
             .short("O")
             .value_name("output-file")
-            .required(true)
             .help("specify a path to the output file.")
         );
 }
