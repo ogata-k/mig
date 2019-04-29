@@ -1,6 +1,5 @@
 extern crate clap;
 
-
 use std::path::PathBuf;
 
 // macros
@@ -13,9 +12,13 @@ use file_helper::{get_extension_for_framework, is_extension};
 use file_helper::with_timestamp;
 use framework::to_framework_type;
 
+use crate::app::file_helper::get_file_name_for_framework;
+use crate::app::io_helper::confirm;
+
 mod convert;
 mod file_helper;
 mod framework;
+mod io_helper;
 
 pub fn mig_app<'a, 'b>() -> App<'a, 'b> {
     return App::new(crate_name!())
@@ -94,17 +97,16 @@ pub fn action_controller(matches: ArgMatches) -> Result<&str, &str> {
     if !input_file_path.is_file() {
         return Err("input file is not file");
     }
-    if !output_file_path.is_file() {
-        return Err("output file is not file");
-    }
 
     // check these files is existing
     if !input_file_path.exists() {
         return Err("input file doesn't exist");
     }
-    if output_file_path.exists() {
-        // TODO 後でtimestampを除いた部分が一致した場合削除して作り直すか確認して処理する機能を実装
-        return Err("output file exist");
+    if output_file_path.exists_with_ignore_timestamp() {
+        // 確認
+        if !confirm("remake the output file?") {
+            return Err("output file exist");
+        }
     }
 
     println!("finish checking condition");
