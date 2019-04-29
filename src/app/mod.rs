@@ -90,7 +90,13 @@ pub fn action_controller(matches: ArgMatches) -> Result<&str, &str> {
         return Err("output file is not a file for the framework");
     }
 
-    // TODO check these files is file
+    // check these files is file
+    if !input_file_path.is_file() {
+        return Err("input file is not file");
+    }
+    if !output_file_path.is_file() {
+        return Err("output file is not file");
+    }
 
     // TODO check these files is existing
 
