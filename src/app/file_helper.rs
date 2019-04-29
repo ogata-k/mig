@@ -6,6 +6,7 @@ use chrono::Local;
 
 use crate::app::framework::Framework;
 
+// TODO 出力先を相対パスなどで指定するようにするのならtimestampを最下ファイルの頭だけにつけるように変更
 pub fn with_timestamp(target_file: &str, framework_type: &Framework) -> String {
     let target = get_file_name_for_framework(target_file, framework_type);
     return format!("{}{}", generate_timestamp(framework_type), target);
