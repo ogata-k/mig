@@ -8,17 +8,18 @@ use clap::{crate_authors, crate_description, crate_name, crate_version};
 use clap::{App, Arg, ArgMatches, Error};
 
 use convert::convert_to_migration_file;
-use file_helper::{get_extension_for_framework, is_extension};
-use file_helper::with_timestamp;
 use framework::to_framework_type;
-
-use crate::app::file_helper::get_file_name_for_framework;
-use crate::app::io_helper::confirm;
+use helper::file_helper::{
+    get_extension_for_framework,
+    get_file_name_for_framework,
+    is_extension,
+    with_timestamp,
+};
+use helper::io_helper::confirm;
 
 mod convert;
-mod file_helper;
 mod framework;
-mod io_helper;
+mod helper;
 
 pub fn mig_app<'a, 'b>() -> App<'a, 'b> {
     return App::new(crate_name!())
