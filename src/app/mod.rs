@@ -7,7 +7,7 @@ use clap::{crate_authors, crate_description, crate_name, crate_version};
 // no macros
 use clap::{App, Arg, ArgMatches, Error};
 
-use convert::convert_to_migration_file;
+use converter::convert_to_migration_file;
 use file_helper::{get_extension_for_framework, is_extension};
 use file_helper::with_timestamp;
 use framework::to_framework_type;
@@ -15,7 +15,7 @@ use framework::to_framework_type;
 use crate::app::file_helper::get_file_name_for_framework;
 use crate::app::io_helper::confirm;
 
-mod convert;
+mod converter;
 mod file_helper;
 mod framework;
 mod io_helper;
