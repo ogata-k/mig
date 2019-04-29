@@ -76,8 +76,8 @@ pub fn action_controller(matches: ArgMatches) -> Result<&str, &str> {
     if output_file_opt.is_none() {
         return Err("out put file is not specified. Why?");
     }
-    let output_file_path_ = PathBuf::from(output_file_opt.unwrap()); // TODO now, Provisional implementation
-    let output_file_path = with_timestamp(&output_file_path_, &framework_type.unwrap());
+    let output_file_path_ = with_timestamp(&output_file_opt.unwrap(), &framework_type.unwrap());
+    let output_file_path = PathBuf::from(output_file_path_); // TODO now, Provisional implementation
 
     // TODO input/output files existing and isFile check
 

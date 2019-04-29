@@ -6,7 +6,7 @@ use chrono::Local;
 
 use crate::app::framework::Framework;
 
-pub fn with_timestamp<'a>(target_file: &'a PathBuf, framework_type: &Framework) -> &'a PathBuf {
+pub fn with_timestamp<'a>(target_file: &'a str, framework_type: &Framework) -> &'a str {
     // TODO set timestamp header to target file
     return target_file;
 }
