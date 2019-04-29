@@ -15,5 +15,5 @@ pub enum Token {
 }
 
 pub struct Sequence {
-    pub seq: Vec<Token>
+    seq: Vec<Token>
 }
