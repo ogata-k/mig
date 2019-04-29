@@ -6,5 +6,6 @@ description = "This application is converter from mig-file to migration-file of 
 edition = "2018"
 
 [dependencies]
-clap = "*"
-chrono = "*"
+clap = "2.33"
+chrono = "0.4.6"
+combine = "3.8.1"
