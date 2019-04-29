@@ -10,11 +10,14 @@ mgファイルの使用は次のようになります。ただし各\<\>と\<\>�
 \<ascii_chars\> = [a-zA-Z]<br/>
 \<space\> = (\t | \_)\* <br/>
 \<space_newline\> = (\<space\> | \n)+<br/>
-\<table_body\> = { (\<column\>\<space_newline\>)\* }<br/>
-\<column\> = \<column_name\> { \<opt_name\> (\<opt\> \<space\>)\* }<br/>
+\<table_body\> = { ((\<table_opt\> | \<column\>) , \<space_newline\>)\* }<br/>
+\<table_opt\> = \<opt\><br/>
+\<column\> = \<column_name\> { \<column_opt\>}<br/>
+\<column_opt\> = \<opt\><br/>
 \<column_name\> = \<ascii_string\><br/>
+\<opt\> = \<opt_name\> (\<opt_val\> \<space\>)\* , \<space_newline\><br/>
 \<opt_name\> = :\<ascii_string\><br/>
-\<opt> = \<String\> | \<Integer\> | \<Double\> | \<Y-m-d\> | \<Time\> | \<Date_Time\> <br/>
+\<opt_val\> = \<String\> | \<Integer\> | \<Double\> | \<Y-m-d\> | \<Time\> | \<Date_Time\> <br/>
 \<String\> = " .\*  "<br/>
 \<Sign\> = \+ | -<br/>
 \<Integer\> = \<Sign\>?(0 | [1-9][0-9]\*)<br/>
@@ -29,4 +32,3 @@ mgファイルの使用は次のようになります。ただし各\<\>と\<\>�
 最低限指定した場合のコマンドは次の通りです。
 
 ```mig.exe -I <input-file> -O <output-file> --target <target-FW>```
-
