@@ -36,14 +36,14 @@ pub fn mig_app<'a, 'b>() -> App<'a, 'b> {
                 .long("target")
                 .value_name("target-FW")
                 .required(true)
-                .help("specify a name of the target FrameWork."),
+                .help("specify the name of the target FrameWork."),
         )
         .arg(
             Arg::with_name("OUTPUT")
                 .short("O")
                 .value_name("output-file")
                 .required(true)
-                .help("specify a path to the output file."),
+                .help("specify the name of the output file."),
         );
 }
 
@@ -80,6 +80,9 @@ pub fn action_controller(matches: ArgMatches) -> Result<&str, &str> {
     let output_file_path = PathBuf::from(output_file_path_string.as_str());
 
     // TODO input/output files existing and isFile and extension check
+    //if !is_mig_flie(input_file_path) { return Error("input file is not mig-file.");}
+    // not realize!!
+    //if !
 
     println!("finish checking for converter");
 
