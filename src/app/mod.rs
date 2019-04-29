@@ -81,7 +81,8 @@ pub fn action_controller(matches: ArgMatches) -> Result<&str, &str> {
     if output_file_opt.is_none() {
         return Err("out put file is not specified. Why?");
     }
-    let output_file_path_string = with_timestamp(&output_file_opt.unwrap(), &framework_type.unwrap());
+    let output_file_path_string =
+        with_timestamp(&output_file_opt.unwrap(), &framework_type.unwrap());
     let output_file_path = PathBuf::from(output_file_path_string.as_str());
 
     // check extension
@@ -89,7 +90,10 @@ pub fn action_controller(matches: ArgMatches) -> Result<&str, &str> {
         return Err("input file is not a mig-file.");
     }
     // error is never realize!!
-    if !is_extension(&output_file_path, get_extension_for_framework(&framework_type.unwrap()).as_str()) {
+    if !is_extension(
+        &output_file_path,
+        get_extension_for_framework(&framework_type.unwrap()).as_str(),
+    ) {
         return Err("output file is not a file for the framework");
     }
 
