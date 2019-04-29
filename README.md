@@ -10,7 +10,7 @@ mgファイルの使用は次のようになります。ただし各\<\>と\<\>�
 \<ascii_chars\> = [a-zA-Z]<br/>
 \<space\> = (\t | \_)\* <br/>
 \<space_newline\> = (\<space\> | \n)+<br/>
-\<table_body\> = { ((\<table_opt\> | \<column\>) , \<space_newline\>)\* }<br/>
+\<table_body\> = { ((\<table_opt\> | \<column\>) , \<space_newline\>\*)\* }<br/>
 \<table_opt\> = \<opt\><br/>
 \<column\> = \<column_name\> { \<column_opt\>}<br/>
 \<column_opt\> = \<opt\><br/>
