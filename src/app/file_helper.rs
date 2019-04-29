@@ -7,8 +7,8 @@ use chrono::Local;
 use crate::app::framework::Framework;
 
 pub fn with_timestamp(target_file: &str, framework_type: &Framework) -> String {
-    let ext = get_extension_for_framework(framework_type);
-    return format!("{}{}.{}", generate_timestamp(framework_type), target_file, ext);
+    let target = get_file_name_for_framework(target_file, framework_type);
+    return format!("{}{}", generate_timestamp(framework_type), target);
 }
 
 fn generate_timestamp(framework_type: &Framework) -> String {
@@ -16,6 +16,11 @@ fn generate_timestamp(framework_type: &Framework) -> String {
         Framework::Laravel => "%Y_%m_%d_%H%M%S_",
     };
     return Local::now().format(fmt).to_string();
+}
+
+pub fn get_file_name_for_framework(target_file: &str, framework_type: &Framework) -> String {
+    let ext = get_extension_for_framework(framework_type);
+    return format!("{}.{}", target_file, ext);
 }
 
 pub fn get_extension_for_framework(framework_type: &Framework) -> String {
