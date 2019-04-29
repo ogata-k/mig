@@ -98,7 +98,14 @@ pub fn action_controller(matches: ArgMatches) -> Result<&str, &str> {
         return Err("output file is not file");
     }
 
-    // TODO check these files is existing
+    // check these files is existing
+    if !input_file_path.exists() {
+        return Err("input file doesn't exist");
+    }
+    if output_file_path.exists() {
+        // TODO 後でtimestampを除いた部分が一致した場合削除して作り直すか確認して処理する機能を実装
+        return Err("output file exist");
+    }
 
     println!("finish checking condition");
 
