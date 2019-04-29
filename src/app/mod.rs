@@ -79,7 +79,7 @@ pub fn action_controller(matches: ArgMatches) -> Result<&str, &str> {
     let output_file_path_string = with_timestamp(&output_file_opt.unwrap(), &framework_type.unwrap());
     let output_file_path = PathBuf::from(output_file_path_string.as_str()); // TODO now, Provisional implementation
 
-    // TODO input/output files existing and isFile check
+    // TODO input/output files existing and isFile and extension check
 
     println!("finish checking for converter");
 
