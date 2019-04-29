@@ -18,9 +18,20 @@ fn generate_timestamp(framework_type: &Framework) -> String {
     return Local::now().format(fmt).to_string();
 }
 
-fn get_extension_for_framework(framework_type: &Framework) -> String {
+pub fn get_extension_for_framework(framework_type: &Framework) -> String {
     let ext = match framework_type {
         Framework::Laravel => "php",
     };
     return ext.to_string();
+}
+
+pub fn is_extension(file_path: &PathBuf, extension: &str) -> bool {
+    let file_extension = file_path.extension();
+    if file_extension.is_none() {
+        return false;
+    }
+    if file_extension.unwrap() == extension {
+        return true;
+    }
+    return false;
 }

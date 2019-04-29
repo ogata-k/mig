@@ -1,5 +1,6 @@
 extern crate clap;
 
+
 use std::path::PathBuf;
 
 // macros
@@ -8,6 +9,7 @@ use clap::{crate_authors, crate_description, crate_name, crate_version};
 use clap::{App, Arg, ArgMatches, Error};
 
 use convert::convert_to_migration_file;
+use file_helper::{get_extension_for_framework, is_extension};
 use file_helper::with_timestamp;
 use framework::to_framework_type;
 
@@ -79,10 +81,18 @@ pub fn action_controller(matches: ArgMatches) -> Result<&str, &str> {
     let output_file_path_string = with_timestamp(&output_file_opt.unwrap(), &framework_type.unwrap());
     let output_file_path = PathBuf::from(output_file_path_string.as_str());
 
-    // TODO input/output files existing and isFile and extension check
-    //if !is_mig_flie(input_file_path) { return Error("input file is not mig-file.");}
-    // not realize!!
-    //if !
+    // check extension
+    if !is_extension(&input_file_path, "mig") {
+        return Err("input file is not a mig-file.");
+    }
+    // error is never realize!!
+    if !is_extension(&output_file_path, get_extension_for_framework(&framework_type.unwrap()).as_str()) {
+        return Err("output file is not a file for the framework");
+    }
+
+    // TODO check these files is file
+
+    // TODO check these files is existing
 
     println!("finish checking for converter");
 
