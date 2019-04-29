@@ -1,4 +1,4 @@
-#[derive(Eq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Token {
     LMidParen,
     RMidParen,
