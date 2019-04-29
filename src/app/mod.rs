@@ -102,12 +102,15 @@ pub fn action_controller(matches: ArgMatches) -> Result<&str, &str> {
     if !input_file_path.exists() {
         return Err("input file doesn't exist");
     }
+    // TODO もし今後似たようなファイルが存在するとき作成するか聞くような仕様にするなら以下を実装
+    /*
     if output_file_path.exists_with_ignore_timestamp() {
         // 確認
         if !confirm("remake the output file?") {
             return Err("output file exist");
         }
     }
+    */
 
     println!("finish checking condition");
 
