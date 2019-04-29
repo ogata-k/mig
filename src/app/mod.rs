@@ -54,7 +54,7 @@ pub fn get_matches_safe<'a>(mig_app: App<'a, '_>) -> Result<ArgMatches<'a>, Erro
 }
 
 pub fn action_controller(matches: ArgMatches) -> Result<&str, &str> {
-    println!("checking for converter...");
+    println!("checking condition..");
 
     let input_file_opt = matches.value_of("INPUT");
     if input_file_opt.is_none() {
@@ -100,7 +100,7 @@ pub fn action_controller(matches: ArgMatches) -> Result<&str, &str> {
 
     // TODO check these files is existing
 
-    println!("finish checking for converter");
+    println!("finish checking condition");
 
     let target_framework = framework_type.unwrap().clone();
     return convert_to_migration_file(&input_file_path, &output_file_path, target_framework);
