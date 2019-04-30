@@ -26,14 +26,7 @@ pub fn convert_to_migration_file<'a, 'b>(
 
     let content = content_result.unwrap();
 
-    let token_seq_result = lexical_analyzer(content);
-    match token_seq_result {
-        Ok(_) => {},
-        Err(e) => {
-            return Err(e);
-        }
-    };
-    let token_seq = token_seq_result.unwrap();
+    let token_seq = lexical_analyzer(content)?;
 
     // TODO write token sequence in output file
 
