@@ -12,7 +12,7 @@ pub fn convert_to_migration_file<'a, 'b>(
     input: PathBuf,
     output: PathBuf,
     framework: Framework,
-) -> Result<&'a str, &'b str> {
+) -> Result<&'a str, &'b str> { // TODO Error change to ParseError structure
     // TODO convert from input file "input" to output file "output" with target framework "framework"
     // this function is controller for convert
     let content_result = fs::read_to_string(input);
