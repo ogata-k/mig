@@ -1,8 +1,6 @@
 use crate::app::converter::token::{Sequence, Token};
 
 pub fn lexical_analyzer<'a>(input: String) -> Result<Sequence, &'a str> {
-    // TODO use parsers
-    // https://qiita.com/agatan/items/8a097ead46df1c1659ff
     return Parser::new(input).parse();
 }
 
