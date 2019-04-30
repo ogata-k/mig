@@ -18,3 +18,9 @@ pub enum Token {
 pub struct Sequence {
     seq: Vec<Token>
 }
+
+impl From<Vec<Token>> for Sequence {
+    fn from(vec: Vec<Token>) -> Sequence {
+        return Sequence { seq: vec };
+    }
+}
