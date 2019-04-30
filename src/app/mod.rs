@@ -120,5 +120,6 @@ pub fn action_controller(matches: ArgMatches) -> Result<&str, &str> {
     println!("finish checking condition");
 
     let target_framework = framework_type.unwrap().clone();
-    return convert_to_migration_file(&input_file_path, &output_file_path, target_framework);
+    let res = convert_to_migration_file(input_file_path, output_file_path, target_framework);
+    return res;
 }
