@@ -7,10 +7,10 @@ use crate::app::converter::token::{Sequence, Token};
 
 use self::combine::token;
 
-pub fn lexical_analyzer(input: &str) -> Sequence {
-    let mut v: Vec<Token> = vec!();
+pub fn lexical_analyzer(input: &str) -> Result<Sequence, &str> {
+    let mut seq: Vec<Token> = vec!();
 
     // TODO use parsers
 
-    return Sequence::from(v);
+    return Ok(Sequence::from(seq));
 }
