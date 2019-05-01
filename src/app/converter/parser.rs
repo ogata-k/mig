@@ -94,22 +94,27 @@ impl<'a> Stream<'a> {
 
     /// 1 origin
     pub fn look(&mut self, n: usize) -> Option<char> {
-        let mut c = None;
         let mut i = 1usize;
         if n == 0 { return None }
-        while i != n {
+        let mut n_dummy = n;
+        while i != n_dummy {
             let nth_opt = self.chars.clone().nth(i - 1);
             if nth_opt.is_none() {
                 return None;
             }
-            let nth = nth_opt.unwrap();
-            if nth.is_ascii() && '\r' != nth {
+            let nth_char = nth_opt.unwrap();
+            if '\r' == nth_char {
+                n_dummy += 1;
+                i += 1;
+                continue;
+            }
+            if nth_char.is_ascii() {
                 i += 1;
                 continue;
             }
             return None;
         }
-        c = self.chars.clone().nth(i - 1);
+        let c = self.chars.clone().nth(n_dummy - 1);
         return c;
     }
 }
