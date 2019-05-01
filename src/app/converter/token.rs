@@ -2,7 +2,6 @@
 pub enum Token {
     LMidParen,
     RMidParen,
-    Comma,
     Name(String),
     // table, column
     NameColon(String),

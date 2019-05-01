@@ -2,12 +2,12 @@
     name{
         :non-null
         :string 10
-    },
+    }
     old{
         :tiny-int
         :unsigned
         :default 0
-    },
+    }
     :timestamps
     :unique-index {
         :target name old

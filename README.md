@@ -10,12 +10,11 @@ mgファイルの使用は次のようになります。ただし各\<\>と\<\>�
 \<ascii_chars\> = [a-zA-Z]<br/>
 \<space\> = (\t | \_)\* <br/>
 \<space_newline\> = (\<space\> | \n)+<br/>
-\<table_body\> = { ((\<table_opt\> | \<column\>) , \<space_newline\>)\* }<br/>
-\<table_opt\> = \<opt\><br/>
-\<column\> = \<column_name\> { \<column_opt\>}<br/>
-\<column_opt\> = \<opt\><br/>
+\<table_body\> = { ((\<table_opt\> | \<column_opt\>) \<space_newline\>)\* }<br/>
+\<table_opt\> = \<opt_name\> ({ \<opt\>+ })?<br/>
+\<column_opt\> = \<column_name\> { \<opt\>+ }<br/>
 \<column_name\> = \<ascii_string\><br/>
-\<opt\> = \<opt_name\> (\<opt_val\> \<space\>)\* , \<space_newline\><br/>
+\<opt\> = \<opt_name\> (\<opt_val\> \<space\>)\*  \<space_newline\><br/>
 \<opt_name\> = :\<ascii_string\><br/>
 \<opt_val\> = \<String\> | \<Integer\> | \<Double\> | \<Y-m-d\> | \<Time\> | \<Date_Time\> <br/>
 \<String\> = " .\*  "<br/>
