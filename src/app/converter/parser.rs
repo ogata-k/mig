@@ -91,6 +91,27 @@ impl<'a> Stream<'a> {
         self.counter.cursor.1 += 1;
         return Ok(ch);
     }
+
+    /// 1 origin
+    pub fn look(&mut self, n: usize) -> Option<char> {
+        let mut c = None;
+        let mut i = 1usize;
+        if n == 0 { return None }
+        while i != n {
+            let nth_opt = self.chars.clone().nth(i - 1);
+            if nth_opt.is_none() {
+                return None;
+            }
+            let nth = nth_opt.unwrap();
+            if nth.is_ascii() && '\r' != nth {
+                i += 1;
+                continue;
+            }
+            return None;
+        }
+        c = self.chars.clone().nth(i - 1);
+        return c;
+    }
 }
 
 // TODO Parse Error Struct
