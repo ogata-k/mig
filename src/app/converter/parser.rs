@@ -11,12 +11,12 @@ pub struct Counter {
     // (row, col)
     cursor: (u16, u16),
     position: usize,
-    is_next: bool
+    is_new_line: bool
 }
 
 impl Counter {
     pub fn new() -> Self {
-        return Counter { cursor: (1, 1), position: 1, is_next: false };
+        return Counter { cursor: (1, 1), position: 1, is_new_line: false };
     }
 }
 
@@ -45,15 +45,15 @@ impl<'a> Stream<'a> {
         }
 
         self.counter.position += 1;
-        if self.counter.is_next {
+        if self.counter.is_new_line {
             // if before char is \n, now reading char is head of newline
             self.counter.cursor.0 += 1;
             self.counter.cursor.1 = 0;
-            self.counter.is_next = false;
+            self.counter.is_new_line = false;
         }
         // update is next line
         if ch == '\n' {
-            self.counter.is_next = true;
+            self.counter.is_new_line = true;
         }
         // update column counter
         self.counter.cursor.1 += 1;
