@@ -96,14 +96,21 @@ impl<'a> Stream<'a> {
     pub fn next_while<F>(&mut self, check: F) -> Vec<char>
         where F: Fn(char) -> bool {
         let mut v = Vec::new();
-        while let Ok(c) = self.next() {
+        // look next char
+        while let Some(c) = self.look(1) {
+            // c satisfy with check
             if check(c) {
-                v.push(c);
+                // consume stream's next char
+                v.push(self.next().unwrap());
                 continue;
             }
             break;
         }
         return v;
+    }
+
+    pub fn skip_spaces_or_newlines(&mut self) {
+        let cs = self.next_while(|c| c.is_whitespace());
     }
 
     /// 1 origin
