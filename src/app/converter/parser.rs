@@ -176,7 +176,6 @@ impl Parser {
             let c = c_opt.unwrap();
             print!("{}", c);
             // TODO calc sequence
-            continue;
         }
         println!("\n-------------");
         println!("{:?}", stream);
