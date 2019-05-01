@@ -92,6 +92,20 @@ impl<'a> Stream<'a> {
         return Ok(ch);
     }
 
+    // better? return type is Chars
+    pub fn next_while<F>(&mut self, check: F) -> Vec<char>
+        where F: Fn(char) -> bool {
+        let mut v = Vec::new();
+        while let Ok(c) = self.next() {
+            if check(c) {
+                v.push(c);
+                continue;
+            }
+            break;
+        }
+        return v;
+    }
+
     /// 1 origin
     pub fn look(&mut self, n: usize) -> Option<char> {
         let mut i = 1usize;
