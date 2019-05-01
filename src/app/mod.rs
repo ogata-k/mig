@@ -1,5 +1,7 @@
 extern crate clap;
 
+use std::fmt::{Display, Formatter};
+use std::fmt;
 use std::path::PathBuf;
 
 // macros
@@ -17,9 +19,40 @@ use helper::file_helper::{
 };
 use helper::io_helper::confirm;
 
+use crate::app::AppError::UnreachedError;
+use crate::app::converter::ConverterError;
+
 mod converter;
 mod framework;
 mod helper;
+
+pub enum AppError {
+    UnreachedError,
+    NotSupportedFrameWork,
+    NotMigFile,
+    NotIsFile,
+    InputFileIsNotExist,
+    Converter(ConverterError),
+}
+
+impl From<ConverterError> for AppError {
+    fn from(c_e: ConverterError) -> Self {
+        return AppError::Converter(c_e);
+    }
+}
+
+impl Display for AppError {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        match self {
+            AppError::UnreachedError => write!(f, "unreached error! Why you reach?"),
+            AppError::NotSupportedFrameWork => write!(f, "not support the framework"),
+            AppError::NotMigFile => write!(f, "input file is not mig file"),
+            AppError::NotIsFile => write!(f, "type of file is not file"),
+            AppError::InputFileIsNotExist => write!(f, "input file is not exists"),
+            AppError::Converter(e) => write!(f, "{}", e.to_string()),
+        }
+    }
+}
 
 pub fn mig_app<'a, 'b>() -> App<'a, 'b> {
     return App::new(crate_name!())
@@ -57,12 +90,12 @@ pub fn get_matches_safe<'a>(mig_app: App<'a, '_>) -> Result<ArgMatches<'a>, Erro
     return mig_app.get_matches_safe();
 }
 
-pub fn action_controller(matches: ArgMatches) -> Result<&str, &str> {
+pub fn action_controller(matches: ArgMatches) -> Result<&str, AppError> {
     println!("checking condition..");
 
     let input_file_opt = matches.value_of("INPUT");
     if input_file_opt.is_none() {
-        return Err("input file is not specified. Why?");
+        return Err(AppError::UnreachedError);
     }
     // input_file_opt is not none!!!
     let input_file_opt_str = input_file_opt.unwrap();
@@ -70,17 +103,17 @@ pub fn action_controller(matches: ArgMatches) -> Result<&str, &str> {
 
     let framework_opt = matches.value_of("TARGET_FW");
     if framework_opt.is_none() {
-        return Err("target frame work is not specified. Why?");
+        return Err(AppError::UnreachedError);
     }
     // framework_opt is not none!!
     let framework_type = to_framework_type(framework_opt.unwrap());
     if framework_type.is_none() {
-        return Err(" cannot analyze the framework or the framework is not supported.");
+        return Err(AppError::NotSupportedFrameWork);
     }
 
     let output_file_opt = matches.value_of("OUTPUT");
     if output_file_opt.is_none() {
-        return Err("out put file is not specified. Why?");
+        return Err(AppError::UnreachedError);
     }
     let output_file_path_string =
         with_timestamp(&output_file_opt.unwrap(), &framework_type.unwrap());
@@ -88,24 +121,21 @@ pub fn action_controller(matches: ArgMatches) -> Result<&str, &str> {
 
     // check extension
     if !is_extension(&input_file_path, "mig") {
-        return Err("input file is not a mig-file.");
+        return Err(AppError::NotMigFile);
     }
+
     // error is never realize!!
     if !is_extension(
         &output_file_path,
         get_extension_for_framework(&framework_type.unwrap()).as_str(),
     ) {
-        return Err("output file is not a file for the framework");
+        return Err(AppError::UnreachedError);
     }
 
-    // check these files is file
-    if !input_file_path.is_file() {
-        return Err("input file is not file");
-    }
 
     // check these files is existing
     if !input_file_path.exists() {
-        return Err("input file doesn't exist");
+        return Err(AppError::InputFileIsNotExist);
     }
     // TODO もし今後似たようなファイルが存在するとき作成するか聞くような仕様にするなら以下を実装
     /*
@@ -117,9 +147,14 @@ pub fn action_controller(matches: ArgMatches) -> Result<&str, &str> {
     }
     */
 
+    // check these files is file
+    if !input_file_path.is_file() {
+        return Err(AppError::NotIsFile);
+    }
     println!("finish checking condition");
 
     let target_framework = framework_type.unwrap().clone();
-    let res = convert_to_migration_file(input_file_path, output_file_path, target_framework);
+    let res = convert_to_migration_file(input_file_path, output_file_path, target_framework)
+        .map_err(|e| AppError::Converter(e));
     return res;
 }
