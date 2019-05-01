@@ -11,11 +11,12 @@ pub struct Counter {
     // (row, col)
     cursor: (u16, u16),
     position: usize,
+    is_next: bool
 }
 
 impl Counter {
     pub fn new() -> Self {
-        return Counter { cursor: (1, 1), position: 1 };
+        return Counter { cursor: (1, 1), position: 1, is_next: false };
     }
 }
 
@@ -28,6 +29,35 @@ struct Stream<'a> {
 impl<'a> Stream<'a> {
     fn new(parser: &'a Parser) -> Self {
         return Stream { chars: (*parser.src).chars(), counter: Counter::new() };
+    }
+
+    fn next(&mut self) -> Result<char, &str> {
+        let ch_opt = self.chars.next();
+        if ch_opt.is_none() {
+            if self.chars.as_str() == "" {
+                return Err("EOS");
+            }
+            return Err("cannot get next char");
+        }
+        let ch = ch_opt.unwrap();
+        if !ch.is_ascii() {
+            return Err("next char is not ascii character")
+        }
+
+        self.counter.position += 1;
+        if self.counter.is_next {
+            // if before char is \n, now reading char is head of newline
+            self.counter.cursor.0 += 1;
+            self.counter.cursor.1 = 0;
+            self.counter.is_next = false;
+        }
+        // update is next line
+        if ch == '\n' {
+            self.counter.is_next = true;
+        }
+        // update column counter
+        self.counter.cursor.1 += 1;
+        return Ok(ch);
     }
 }
 
@@ -53,10 +83,18 @@ impl Parser {
 
         println!("\n-------------");
         // TODO parse
+
         loop {
-            let c_opt = stream.chars.next(); // TODO update cursor and position method when next
-            if c_opt.is_none() { break; }
-            stream.counter.position += 1; // ***
+            let c_opt = stream.next();
+            match c_opt {
+                Ok(_) => {},
+                Err(e) => {
+                    if e != "EOS" {
+                        return Err("Error!!");// TODO use c_opt.error
+                    }
+                    break;
+                },
+            }
             let c = c_opt.unwrap();
             print!("{}", c);
             // TODO calc sequence
