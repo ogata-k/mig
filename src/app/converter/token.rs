@@ -14,6 +14,7 @@ pub enum Token {
     String(String),  // "..."
 }
 
+#[derive(Debug)]
 pub struct Sequence {
     seq: Vec<Token>
 }
