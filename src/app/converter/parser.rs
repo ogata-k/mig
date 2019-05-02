@@ -209,7 +209,23 @@ impl Parser {
                         continue;
                     }
                     return Err(ParserError::UnknownToken(stream.counter.cursor.0, stream.counter.cursor.1));
-                }
+                },
+                '"' => {
+                    let cs = stream.next_while(|c| c != '"');
+                    let checker = stream.next();
+                    match checker {
+                        Ok('"') => {
+                            parsed.push(Token::String(cs.iter().collect()));
+                            continue;
+                        },
+                        Ok(_) => {
+                            return Err(ParserError::UnknownToken(stream.counter.cursor.0, stream.counter.cursor.1));
+                        },
+                        Err(e) => {
+                            return Err(e);
+                        },
+                    }
+                },
                 _ => { continue; /* change to ParseError::UnknownToken*/ },
             }
         }

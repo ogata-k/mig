@@ -2,6 +2,7 @@
     name{
         :non-null
         :string 10
+        :default "guest: mig"
     }
     old{
         :tiny-int
