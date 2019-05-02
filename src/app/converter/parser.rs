@@ -163,6 +163,7 @@ impl Parser {
         println!("\n-------------");
         // TODO parse
         loop {
+            stream.skip_spaces_or_newlines();
             let c_opt = stream.next();
             match c_opt {
                 Ok(_) => {},
@@ -174,13 +175,25 @@ impl Parser {
                 },
             }
             let c = c_opt.unwrap();
-            print!("{}", c);
+            print!("{}: ", c);
             // TODO calc sequence
+            match c {
+                '{' => {
+                    parsed.push(Token::LMidParen);
+                    continue;
+                },
+                '}' => {
+                    parsed.push(Token::RMidParen);
+                    continue;
+                },
+                _ => { continue; },
+            }
         }
         println!("\n-------------");
         println!("{:?}", stream);
 
         let seq = Sequence::from(parsed);
+        println!("{:?}", seq);
         return Ok(seq);
     }
 }
