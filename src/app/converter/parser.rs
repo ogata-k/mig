@@ -93,6 +93,7 @@ impl<'a> Stream<'a> {
         // update counter
         self.counter.position += 1;
         self.counter.cursor.1 += 1;
+        print!("{}, ", ch);
         return Ok(ch);
     }
 
@@ -189,7 +190,6 @@ impl Parser {
                 },
             }
             let c = c_opt.unwrap();
-            print!("{}: ", c);
             // TODO calc sequence
             match c {
                 '{' => {
