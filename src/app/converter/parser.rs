@@ -7,6 +7,7 @@ use std::str::Chars;
 use failure::Fail;
 
 use crate::app::converter::token::{Sequence, Token};
+use crate::app::converter::token::Token::NameColon;
 
 pub fn lexical_analyzer<'a>(input: String) -> Result<Sequence, ParserError> {
     return Parser::new(input).parse();
@@ -17,6 +18,7 @@ pub enum ParserError {
     // for Stream
     NotGetCharacter(u16, u16),
     NotAsciiCharacter(u16, u16),
+    UnknownToken(u16, u16),
     EndOfStream,
 }
 
@@ -27,6 +29,8 @@ impl Display for ParserError {
                 write!(f, "cannot get  character in (row, col) = ({}, {})", row, col),
             ParserError::NotAsciiCharacter(row, col) =>
                 write!(f, "not ascii character in (row, col) = ({}, {})", row, col),
+            ParserError::UnknownToken(row, col) =>
+                write!(f, "read unknown token at the end of (row, col) = ({}, {})", row, col),
             ParserError::EndOfStream =>
                 write!(f, "End Of input Stream"),
         }
@@ -140,7 +144,17 @@ impl<'a> Stream<'a> {
     }
 }
 
-// TODO Parse Error Struct
+// check the character which we can use for option name for mig-file
+fn is_mig_opt_name_char(c: char) -> bool {
+    c.is_ascii_alphanumeric() || c == '-'
+}
+
+// check the string which we can use for option name for mig-file
+fn is_mig_opt_name(cs: &Vec<char>) -> bool {
+    if cs.is_empty() { return false; }
+    if cs[0].is_ascii_digit() || cs[0] == '-' { return false; }
+    return cs.iter().fold(true, |acc, c| acc && is_mig_opt_name_char(*c));
+}
 
 #[derive(Debug, Clone)]
 pub struct Parser {
@@ -186,7 +200,17 @@ impl Parser {
                     parsed.push(Token::RMidParen);
                     continue;
                 },
-                _ => { continue; },
+                ':' => {
+                    let cs = stream.next_while(|c| is_mig_opt_name_char(c));
+                    if is_mig_opt_name(&cs) {
+                        let cs_dummy = cs.clone();
+                        let s = cs_dummy.iter().collect();
+                        parsed.push(NameColon(s));
+                        continue;
+                    }
+                    return Err(ParserError::UnknownToken(stream.counter.cursor.0, stream.counter.cursor.1));
+                }
+                _ => { continue; /* change to ParseError::UnknownToken*/ },
             }
         }
         println!("\n-------------");
