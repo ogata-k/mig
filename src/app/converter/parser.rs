@@ -7,7 +7,6 @@ use std::str::Chars;
 use failure::Fail;
 
 use crate::app::converter::token::{Sequence, Token};
-use crate::app::converter::token::Token::NameColon;
 
 pub fn lexical_analyzer<'a>(input: String) -> Result<Sequence, ParserError> {
     return Parser::new(input).parse();
@@ -19,6 +18,7 @@ pub enum ParserError {
     NotGetCharacter(u16, u16),
     NotAsciiCharacter(u16, u16),
     UnknownToken(u16, u16),
+    NotANumber(u16, u16),
     EndOfStream,
 }
 
@@ -31,6 +31,8 @@ impl Display for ParserError {
                 write!(f, "not ascii character in (row, col) = ({}, {})", row, col),
             ParserError::UnknownToken(row, col) =>
                 write!(f, "read unknown token at the end of (row, col) = ({}, {})", row, col),
+            ParserError::NotANumber(row, col) =>
+                write!(f, "cannot read a number at the end of (roe, col) = ({}, {})", row, col),
             ParserError::EndOfStream =>
                 write!(f, "End Of input Stream"),
         }
@@ -205,7 +207,7 @@ impl Parser {
                     if is_mig_opt_name(&cs) {
                         let cs_dummy = cs.clone();
                         let s = cs_dummy.iter().collect();
-                        parsed.push(NameColon(s));
+                        parsed.push(Token::NameColon(s));
                         continue;
                     }
                     return Err(ParserError::UnknownToken(stream.counter.cursor.0, stream.counter.cursor.1));
@@ -226,6 +228,43 @@ impl Parser {
                         },
                     }
                 },
+                // TODO とりあえず次の空白か括弧まで取得して振り分けるのはどうか？
+                '0' => {
+                    // TODO parse continue number  check!:001, 0.99, 0, 00
+                    match stream.look(1) {
+                        Some(c) if c.is_whitespace() => {
+                            stream.skip_spaces_or_newlines();
+                            parsed.push(Token::Integer(0));
+                            continue;
+                        },
+                        // TODO refactor for passing 00:12:1
+                        Some('0') => { return Err(ParserError::NotANumber(stream.counter.cursor.0, stream.counter.cursor.1)); },
+                        None => {
+                            parsed.push(Token::Integer(0));
+                            continue;
+                        },
+                        // 0.---
+                        Some('.') => {
+                            // TODO double
+                        },
+                        // 0-,,,
+                        Some('-') => {
+                            // TODO Ymd or DateTime
+                        },
+                        Some(':') => {
+                            // TODO Time
+                        },
+                        Some(_) => {
+                            return Err(ParserError::NotANumber(stream.counter.cursor.0, stream.counter.cursor.1));
+                        }
+                    }
+                    continue;
+                },
+                '1'...'9' => {
+                    // TODO make integer -> double, Ymd, time, DateTime
+                    println!("read a number, but not 0");
+                    continue;
+                }
                 _ => { continue; /* change to ParseError::UnknownToken*/ },
             }
         }
