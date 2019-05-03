@@ -325,6 +325,23 @@ impl Parser {
                     }
                 }
                 // TODO negative Integer
+                '-' => {
+                    let digits: Vec<char> = stream.next_while(|c| c.is_ascii_digit());
+                    let look = stream.look(1);
+                    // negative double
+                    if look == Some('.') {
+                        // TODO double
+                    }
+                    // negative integer
+                    if let Some(sym) = look {
+                        if !sym.is_ascii() || sym.is_whitespace() || sym == '{' || sym == '}' {
+                            let uint = to_unsigned_integer(digits).ok_or(
+                                ParserError::NotANumber(stream.get_row(), stream.get_col())
+                            )?;
+                            parsed.push(Token::Integer(-(uint as i16)));
+                        }
+                    }
+                }
                 // TODO string for user
                 _ => { continue; /* change to ParseError::UnknownToken*/ }
             }
