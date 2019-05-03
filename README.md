@@ -16,7 +16,7 @@ mgファイルの使用は次のようになります。ただし各\<\>と\<\>�
 \<column_name\> = \<ascii_string\><br/>
 \<opt\> = \<opt_name\> (\<opt_val\> \<space\>)\*  \<space_newline\><br/>
 \<opt_name\> = :\<ascii_string\><br/>
-\<opt_val\> = \<String\> | \<Integer\> | \<Double\> | \<Y-m-d\> | \<Time\> | \<Date_Time\> <br/>
+\<opt_val\> = \<column_name\> | \<String\> | \<Integer\> | \<Double\> | \<Y-m-d\> | \<Time\> | \<Date_Time\> <br/>
 \<String\> = " .\*  "<br/>
 \<Sign\> = \+ | -<br/>
 \<Integer\> = \<Sign\>?(0 | [1-9][0-9]\*)<br/>
