@@ -301,16 +301,39 @@ impl Parser {
                                 None => {
                                     parsed.push(Token::Ymd(y as u16, m as u8, d as u8));
                                     continue;
-                                },
+                                }
                                 Some(ch) if ch.is_whitespace() || ch == '{' || ch == '}' => {
                                     parsed.push(Token::Ymd(y as u16, m as u8, d as u8));
                                     continue;
                                 }
                                 Some('_') => {
                                     // TODO DateTime
-                                    println!("DateTime!!!!!!!!!!!!!!!!!!!!!");
+                                    // stream head is '_'
+                                    let _ = stream.next();
+
+                                    // Time is form:  00:00:00
+                                    let cs = stream.next_while(|c| c.is_ascii_digit() || c == ':');
+                                    if !(cs.len() == 8 && cs[2] == ':' && cs[5] == ':') {
+                                        return Err(ParserError::UnknownToken(stream.get_row(), stream.get_col()));
+                                    }
+                                    let h = to_unsigned_integer(cs[0..2].to_vec())
+                                        .ok_or(ParserError::UnknownToken(stream.get_row(), stream.get_col()))?;
+                                    if h >= 25 {
+                                        return Err(ParserError::NumberRangeError(stream.get_row(), stream.get_col()));
+                                    }
+                                    let mi = to_unsigned_integer(cs[3..5].to_vec())
+                                        .ok_or(ParserError::UnknownToken(stream.get_row(), stream.get_col()))?;
+                                    if mi >= 60 {
+                                        return Err(ParserError::NumberRangeError(stream.get_row(), stream.get_col()));
+                                    }
+                                    let s = to_unsigned_integer(cs[6..8].to_vec())
+                                        .ok_or(ParserError::UnknownToken(stream.get_row(), stream.get_col()))?;
+                                    if s >= 60 {
+                                        return Err(ParserError::NumberRangeError(stream.get_row(), stream.get_col()));
+                                    }
+                                    parsed.push(Token::DateTime(y as u16, m as u8, d as u8, h as u8, mi as u8, s as u8));
                                     continue;
-                                },
+                                }
                                 Some(_) => {
                                     return Err(ParserError::UnknownToken(stream.get_row(), stream.get_col()));
                                 }
@@ -406,7 +429,7 @@ impl Parser {
                     let mut v = vec!(ch);
                     v.append(&mut stream.next_while(|ch| ch.is_ascii_alphabetic()));
                     parsed.push(Token::Name(v.iter().collect()))
-                },
+                }
                 _ => { continue; /* change to ParseError::UnknownToken*/ }
             }
             continue;
