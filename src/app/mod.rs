@@ -91,7 +91,7 @@ pub fn get_matches_safe<'a>(mig_app: App<'a, '_>) -> Result<ArgMatches<'a>, Erro
 }
 
 pub fn action_controller(matches: ArgMatches) -> Result<&str, AppError> {
-    println!("checking condition..");
+    println!("checking condition...");
 
     let input_file_opt = matches.value_of("INPUT");
     if input_file_opt.is_none() {

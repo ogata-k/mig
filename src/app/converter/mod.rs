@@ -36,18 +36,29 @@ pub fn convert_to_migration_file<'a, 'b>(
     output: PathBuf,
     framework: Framework,
 ) -> Result<&'a str, ConverterError> {
-    println!("start reading from input file...");
+    println!("reading from input file...");
     let content = fs::read_to_string(input)
         .map_err(|e| ConverterError::FailedReadInputFile(e))?;
     println!("finish reading file");
 
-    println!("start parsing content...");
+    println!("parsing content...");
     let tokens = lexical_analyzer(content)?;
     // println!("{:?}", tokens);
     println!("finish parsing");
 
-    // TODO write token sequence in output file
     println!("{:?}", tokens);
+
+    // TODO check tokens is correct mig-data
+    println!("checking parsing data...");
+    println!("finish checking data");
+
+    // TODO convert from tokens to code of target's framework
+    println!("converting checked data...");
+    println!("finish converting data");
+
+    // TODO write token sequence in output file
+    println!("writing data in output file");
+    println!("finish writing data");
 
     return Ok("Success!! converted!");
 }
