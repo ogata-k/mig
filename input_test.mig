@@ -9,6 +9,9 @@
         :unsigned
         :default 0
     }
+    check {
+        :time 01:12:55
+    }
     :timestamps
     :unique-index {
         :target name old

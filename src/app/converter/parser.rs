@@ -248,8 +248,24 @@ impl Parser {
                             parsed.push(Token::Integer(0));
                             continue;
                         },
-                        // TODO refactor for passing 00:12:1
-                        Some('0') => { return Err(ParserError::NotANumber(stream.get_row(), stream.get_col())); },
+                        Some(c) if c.is_ascii_digit() => {
+                            if let Some(':') = stream.look(2) {
+                                let cs = stream.next_while(|c| c.is_ascii_digit() || c == ':');
+                                // 0   0:12:12
+                                //     ~~~~~~~
+                                if cs.len() == 7 {
+                                    let h = to_unsigned_integer(cs[0..1].to_vec())
+                                        .ok_or(ParserError::NotANumber(stream.get_row(), stream.get_col()))?;
+                                    let m = to_unsigned_integer(cs[2..4].to_vec())
+                                        .ok_or(ParserError::NotANumber(stream.get_row(), stream.get_col()))?;
+                                    let s = to_unsigned_integer(cs[5..7].to_vec())
+                                        .ok_or(ParserError::NotANumber(stream.get_row(), stream.get_col()))?;
+                                    parsed.push(Token::Time(h as u8, m as u8, s as u8));
+                                    continue;
+                                }
+                            }
+                            return Err(ParserError::NotANumber(stream.get_row(), stream.get_col()));
+                        },
                         None => {
                             parsed.push(Token::Integer(0));
                             continue;
@@ -286,4 +302,14 @@ impl Parser {
         println!("{:?}", seq);
         return Ok(seq);
     }
+}
+
+// type Data = Vec<char> とか？
+fn to_unsigned_integer(v: Vec<char>) -> Option<usize> {
+    let s = v.iter()
+        .map(|c| c.to_digit(10))
+        .fold(Some(0), |acc, d|
+            if acc.and(d).is_some() { Some(10 * acc.unwrap() + d.unwrap()) } else { None },
+        );
+    return s.and_then(|s| Some(s as usize));
 }
