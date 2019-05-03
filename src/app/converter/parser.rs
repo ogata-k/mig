@@ -192,7 +192,6 @@ impl Parser {
         let mut stream = Stream::new(&parser_clone);
 
         println!("\n-------------");
-        // TODO parse
         loop {
             stream.skip_spaces_or_newlines();
             let c_opt = stream.next();
@@ -206,7 +205,6 @@ impl Parser {
                 }
             }
             let c = c_opt.unwrap();
-            // TODO calc sequence
             match c {
                 '{' => {
                     parsed.push(Token::LMidParen);
@@ -307,7 +305,6 @@ impl Parser {
                                     continue;
                                 }
                                 Some('_') => {
-                                    // TODO DateTime
                                     // stream head is '_'
                                     let _ = stream.next();
 
@@ -393,10 +390,9 @@ impl Parser {
                             }
                             if let Some(sym_snd) = stream.look(1) {
                                 if !sym_snd.is_ascii() || sym_snd.is_whitespace() || sym_snd == '{' || sym_snd == '}' {
-                                    let uint = to_unsigned_integer(digits).ok_or(
-                                        ParserError::NotANumber(stream.get_row(), stream.get_col())
-                                    )?;
-                                    parsed.push(Token::Integer(-(uint as i16)));
+                                    let d = to_unsigned_f32(digits, digits_opt)
+                                        .ok_or(ParserError::NumberRangeError(stream.get_row(), stream.get_col()))?;
+                                    parsed.push(Token::Double(-d));
                                     continue;
                                 }
                             }
