@@ -367,7 +367,12 @@ impl Parser {
                     }
                     return Err(ParserError::UnknownToken(stream.get_row(), stream.get_col()));
                 }
-                // TODO string for user
+                // string for user
+                ch if ch.is_ascii_alphabetic() => {
+                    let mut v = vec!(ch);
+                    v.append(&mut stream.next_while(|ch| ch.is_ascii_alphabetic()));
+                    parsed.push(Token::Name(v.iter().collect()))
+                },
                 _ => { continue; /* change to ParseError::UnknownToken*/ }
             }
             continue;
