@@ -76,11 +76,11 @@ impl<'a> Stream<'a> {
             if self.chars.as_str() == "" {
                 return Err(ParserError::EndOfStream);
             }
-            return Err(ParserError::NotGetCharacter(self.counter.cursor.0, self.counter.cursor.1));
+            return Err(ParserError::NotGetCharacter(self.get_row(), self.get_col()));
         }
         let ch = ch_opt.unwrap();
         if !ch.is_ascii() {
-            return Err(ParserError::NotAsciiCharacter(self.counter.cursor.0, self.counter.cursor.1));
+            return Err(ParserError::NotAsciiCharacter(self.get_row(), self.get_col()));
         }
 
         // update is next line
@@ -145,6 +145,18 @@ impl<'a> Stream<'a> {
         let c = self.chars.clone().nth(n_dummy - 1);
         return c;
     }
+
+    pub fn get_row(&self) -> u16 {
+        return self.counter.cursor.0;
+    }
+
+    pub fn get_col(&self) -> u16 {
+        return self.counter.cursor.1;
+    }
+
+    pub fn get_position(&self) -> usize {
+        return self.counter.position;
+    }
 }
 
 // check the character which we can use for option name for mig-file
@@ -170,7 +182,6 @@ impl Parser {
     }
 
     pub fn parse(&mut self) -> Result<Sequence, ParserError> {
-        // cf: https://qiita.com/agatan/items/8a097ead46df1c1659ff
         let mut parsed: Vec<Token> = Vec::new();
 
         // init
@@ -210,7 +221,7 @@ impl Parser {
                         parsed.push(Token::NameColon(s));
                         continue;
                     }
-                    return Err(ParserError::UnknownToken(stream.counter.cursor.0, stream.counter.cursor.1));
+                    return Err(ParserError::UnknownToken(stream.get_row(), stream.get_col()));
                 },
                 '"' => {
                     let cs = stream.next_while(|c| c != '"');
@@ -221,7 +232,7 @@ impl Parser {
                             continue;
                         },
                         Ok(_) => {
-                            return Err(ParserError::UnknownToken(stream.counter.cursor.0, stream.counter.cursor.1));
+                            return Err(ParserError::UnknownToken(stream.get_row(), stream.get_col()));
                         },
                         Err(e) => {
                             return Err(e);
@@ -238,7 +249,7 @@ impl Parser {
                             continue;
                         },
                         // TODO refactor for passing 00:12:1
-                        Some('0') => { return Err(ParserError::NotANumber(stream.counter.cursor.0, stream.counter.cursor.1)); },
+                        Some('0') => { return Err(ParserError::NotANumber(stream.get_row(), stream.get_col())); },
                         None => {
                             parsed.push(Token::Integer(0));
                             continue;
@@ -255,7 +266,7 @@ impl Parser {
                             // TODO Time
                         },
                         Some(_) => {
-                            return Err(ParserError::NotANumber(stream.counter.cursor.0, stream.counter.cursor.1));
+                            return Err(ParserError::NotANumber(stream.get_row(), stream.get_col()));
                         }
                     }
                     continue;
