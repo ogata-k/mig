@@ -11,6 +11,8 @@
     }
     check {
         :time 21:57:55
+        :ymd 0119-07-12
+        :datetime 2019-05-01_21:21:21
     }
     :timestamps
     :unique-index {
