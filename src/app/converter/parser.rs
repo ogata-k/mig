@@ -280,7 +280,41 @@ impl Parser {
                         }
                         // Ymd or DateTime
                         4 if look == Some('-') => {
-                            // TODO Ymd or DateTime
+                            let _ = stream.next();
+                            // md's form is 00-00
+                            let md = stream.next_while(|c| c.is_ascii_digit() || c == '-');
+                            if md[2] != '-' {
+                                return Err(ParserError::UnknownToken(stream.get_row(), stream.get_col()));
+                            }
+                            let y = to_unsigned_integer(digits.to_vec())
+                                .ok_or(ParserError::UnknownToken(stream.get_row(), stream.get_col()))?;
+                            let m = to_unsigned_integer(md[0..2].to_vec())
+                                .ok_or(ParserError::UnknownToken(stream.get_row(), stream.get_col()))?;
+                            let d = to_unsigned_integer(md[3..5].to_vec())
+                                .ok_or(ParserError::UnknownToken(stream.get_row(), stream.get_col()))?;
+                            if m >= 13 || d >= 32 {
+                                return Err(ParserError::NumberRangeError(stream.get_row(), stream.get_row()));
+                            }
+
+                            let look = stream.look(1);
+                            match look {
+                                None => {
+                                    parsed.push(Token::Ymd(y as u16, m as u8, d as u8));
+                                    continue;
+                                },
+                                Some(ch) if ch.is_whitespace() || ch == '{' || ch == '}' => {
+                                    parsed.push(Token::Ymd(y as u16, m as u8, d as u8));
+                                    continue;
+                                }
+                                Some('_') => {
+                                    // TODO DateTime
+                                    println!("DateTime!!!!!!!!!!!!!!!!!!!!!");
+                                    continue;
+                                },
+                                Some(_) => {
+                                    return Err(ParserError::UnknownToken(stream.get_row(), stream.get_col()));
+                                }
+                            }
                         }
                         // Double
                         _ if look == Some('.') => {
