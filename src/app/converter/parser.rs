@@ -240,6 +240,42 @@ impl Parser {
                     }
                 },
                 i @ '0'...'9' => {
+                    let mut v = vec!(i);
+                    let mut v_tail: Vec<char> = stream.next_while(|c| c.is_ascii_digit());
+                    v.append(&mut v_tail);
+                    // digits is unsigned integer in head of stream
+                    let digits = v;
+                    match digits.len() {
+                        2 if stream.look(1) == Some(':') => {
+                            // TODO Time
+                        },
+                        4 if stream.look(1) == Some('-') => {
+                            // TODO Ymd or DateTime
+                        },
+                        _ => {
+                            match stream.look(1) {
+                                Some('.') => {
+                                    // TODO Double
+                                    continue;
+                                },
+                                Some(sym) => {
+                                    if !sym.is_ascii() || sym.is_wite_space() || sym == '{' || sym == '}' {
+                                        // TODO Integer
+                                        continue;
+                                    }
+                                    return Err(ParserError::UnknownToken(stream.get_row(), stream.get_col()));
+                                },
+                                None => {
+                                    // TODO Integer
+                                    continue;
+                                }
+                            }
+                        },
+                    }
+                    continue;
+                }
+                /*
+                i @ '0'...'9' => {
                     // TODO parse continue number  check!:001, 0.99, 0, 00
                     match stream.look(1) {
                         // 0 ... 9
@@ -313,6 +349,7 @@ impl Parser {
                     }
                     continue;
                 },
+                    */
                 _ => { continue; /* change to ParseError::UnknownToken*/ },
             }
         }
