@@ -98,7 +98,7 @@ impl<'a> Stream<'a> {
         // update counter
         self.counter.position += 1;
         self.counter.cursor.1 += 1;
-        print!("{}, ", ch);
+        // print!("{}, ", ch);
         return Ok(ch);
     }
 
@@ -191,7 +191,6 @@ impl Parser {
         let parser_clone = self.clone();
         let mut stream = Stream::new(&parser_clone);
 
-        println!("\n-------------");
         loop {
             stream.skip_spaces_or_newlines();
             let c_opt = stream.next();
@@ -431,11 +430,8 @@ impl Parser {
             continue;
         }
 
-        println!("\n-------------");
-        println!("{:?}", stream);
 
         let seq = Sequence::from(parsed);
-        println!("{:?}", seq);
         return Ok(seq);
     }
 }

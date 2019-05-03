@@ -30,26 +30,24 @@ impl Display for ConverterError {
     }
 }
 
+// this function is controller for convert
 pub fn convert_to_migration_file<'a, 'b>(
     input: PathBuf,
     output: PathBuf,
     framework: Framework,
 ) -> Result<&'a str, ConverterError> {
-    // TODO convert from input file "input" to output file "output" with target framework "framework"
-    // this function is controller for convert
-    let content_result = fs::read_to_string(input);
-    match content_result {
-        Ok(_) => {},
-        Err(e) => {
-            return Err(ConverterError::FailedReadInputFile(e));
-        }
-    };
+    println!("start reading from input file...");
+    let content = fs::read_to_string(input)
+        .map_err(|e| ConverterError::FailedReadInputFile(e))?;
+    println!("finish reading file");
 
-    let content = content_result.unwrap();
-
-    let token_seq = lexical_analyzer(content)?;
+    println!("start parsing content...");
+    let tokens = lexical_analyzer(content)?;
+    // println!("{:?}", tokens);
+    println!("finish parsing");
 
     // TODO write token sequence in output file
+    println!("{:?}", tokens);
 
     return Ok("Success!! converted!");
 }
