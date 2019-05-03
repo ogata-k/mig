@@ -239,22 +239,32 @@ impl Parser {
                         },
                     }
                 },
-                // TODO とりあえず次の空白か括弧まで取得して振り分けるのはどうか？
-                '0' => {
+                i @ '0'...'9' => {
                     // TODO parse continue number  check!:001, 0.99, 0, 00
                     match stream.look(1) {
+                        // 0 ... 9
                         Some(c) if c.is_whitespace() => {
+                            let d = i.to_digit(10).ok_or(
+                                ParserError::NotANumber(stream.get_row(), stream.get_col())
+                            )?;
+                            println!("hoge");
                             stream.skip_spaces_or_newlines();
-                            parsed.push(Token::Integer(0));
+                            parsed.push(Token::Integer(d as i16));
                             continue;
                         },
-                        Some(c) if c.is_ascii_digit() => {
+                        // [0-9]<ascii>
+                        // TODO フローを変更！！ 最初に数字を全部読み取って、そのあと振り分ける. もちろんトークンになるかの数値条件チェックを忘れずに
+                        Some(c) if c.is_ascii() => {
+                            // Ymd is form: 0000-00-00
+                            // TODO Ymd DateTime
+                            // [0-9]<ascii>:
                             if let Some(':') = stream.look(2) {
+                                // TIme is form:  00:00:00
                                 let cs = stream.next_while(|c| c.is_ascii_digit() || c == ':');
                                 // 0   0:12:12
                                 //     ~~~~~~~
                                 if cs.len() == 7 {
-                                    let h = to_unsigned_integer(cs[0..1].to_vec())
+                                    let h = to_unsigned_integer([i, cs[0]].to_vec())
                                         .ok_or(ParserError::NotANumber(stream.get_row(), stream.get_col()))?;
                                     let m = to_unsigned_integer(cs[2..4].to_vec())
                                         .ok_or(ParserError::NotANumber(stream.get_row(), stream.get_col()))?;
@@ -264,34 +274,45 @@ impl Parser {
                                     continue;
                                 }
                             }
-                            return Err(ParserError::NotANumber(stream.get_row(), stream.get_col()));
+                            let cs: Vec<char> = stream.next_while(|c| c.is_ascii_digit());
+                            let mut dummy: Vec<char> = [i].to_vec();
+                            dummy.append(&mut cs.clone());
+                            let uint = to_unsigned_integer(dummy)
+                                .ok_or(ParserError::NotANumber(stream.get_row(), stream.get_col()))?;
+                            if stream.look(1) != Some('.') {
+                                parsed.push(Token::Integer(uint as i16));
+                                continue;
+                            }
+                            let _ = stream.next();
+                            let opt_digit_vec = stream.next_while(|c| c.is_ascii_digit());
+                            let l = opt_digit_vec.len();
+                            let opt_digit = to_unsigned_integer(opt_digit_vec)
+                                .ok_or(ParserError::NotANumber(stream.get_row(), stream.get_col()))?;
+                            parsed.push(Token::Double(uint as f32 + (opt_digit as f32 / (10_usize.pow(l as u32)) as f32)));
+                            continue;
                         },
                         None => {
                             parsed.push(Token::Integer(0));
                             continue;
                         },
-                        // 0.---
                         Some('.') => {
-                            // TODO double
+                            let uint = i.to_digit(10)
+                                .ok_or(ParserError::NotANumber(stream.get_row(), stream.get_col()))?;
+                            let _ = stream.next();
+                            let opt_digit_vec = stream.next_while(|c| c.is_ascii_digit());
+                            let l = opt_digit_vec.len();
+                            let opt_digit = to_unsigned_integer(opt_digit_vec)
+                                .ok_or(ParserError::NotANumber(stream.get_row(), stream.get_col()))?;
+                            parsed.push(Token::Double(uint as f32 + (opt_digit as f32 / (10_usize.pow(l as u32)) as f32)));
+                            continue;
                         },
-                        // 0-,,,
-                        Some('-') => {
-                            // TODO Ymd or DateTime
-                        },
-                        Some(':') => {
-                            // TODO Time
-                        },
+                        // TODO signed integer but impl only negative
                         Some(_) => {
                             return Err(ParserError::NotANumber(stream.get_row(), stream.get_col()));
                         }
                     }
                     continue;
                 },
-                '1'...'9' => {
-                    // TODO make integer -> double, Ymd, time, DateTime
-                    println!("read a number, but not 0");
-                    continue;
-                }
                 _ => { continue; /* change to ParseError::UnknownToken*/ },
             }
         }
@@ -306,6 +327,7 @@ impl Parser {
 
 // type Data = Vec<char> とか？
 fn to_unsigned_integer(v: Vec<char>) -> Option<usize> {
+    if v.is_empty() { return None; }
     let s = v.iter()
         .map(|c| c.to_digit(10))
         .fold(Some(0), |acc, d|

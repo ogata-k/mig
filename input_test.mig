@@ -1,7 +1,7 @@
 :create members{
     name{
         :non-null
-        :string 10
+        :string 10.01 3.14 0.12
         :default "guest: mig"
     }
     old{
