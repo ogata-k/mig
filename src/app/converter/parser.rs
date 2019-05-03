@@ -325,6 +325,7 @@ impl Parser {
                     }
                 }
                 // TODO negative Integer
+                // TODO string for user
                 _ => { continue; /* change to ParseError::UnknownToken*/ }
             }
             continue;
