@@ -6,8 +6,8 @@ use std::path::PathBuf;
 use crate::app::converter::parser::{lexical_analyzer, ParserError};
 use crate::app::framework::Framework;
 
-mod token;
-mod parser;
+pub mod token;
+pub mod parser;
 
 #[derive(Debug)]
 pub enum ConverterError {

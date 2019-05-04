@@ -22,8 +22,8 @@ use helper::io_helper::confirm;
 use crate::app::AppError::UnreachedError;
 use crate::app::converter::ConverterError;
 
-mod converter;
-mod framework;
+pub mod converter;
+pub mod framework;
 mod helper;
 
 pub enum AppError {

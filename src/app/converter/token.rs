@@ -24,3 +24,13 @@ impl From<Vec<Token>> for Sequence {
         return Sequence { seq: vec };
     }
 }
+
+impl Sequence {
+    pub fn get_token(&self, i: usize) -> Token {
+        return self.seq[i].clone();
+    }
+
+    pub fn get_tokens(&self) -> Vec<Token> {
+        return self.seq.clone();
+    }
+}

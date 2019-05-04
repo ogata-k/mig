@@ -259,7 +259,7 @@ impl Parser {
                             }
                             let h = to_unsigned_integer(digits)
                                 .ok_or(ParserError::UnknownToken(stream.get_row(), stream.get_col()))?;
-                            if h >= 25 {
+                            if h >= 24 {
                                 return Err(ParserError::NumberRangeError(stream.get_row(), stream.get_col()));
                             }
                             let m = to_unsigned_integer(cs[0..2].to_vec())
@@ -280,6 +280,9 @@ impl Parser {
                             let _ = stream.next();
                             // md's form is 00-00
                             let md = stream.next_while(|c| c.is_ascii_digit() || c == '-');
+                            if md.len() != 5 {
+                                return Err(ParserError::UnknownToken(stream.get_row(), stream.get_col()));
+                            }
                             if md[2] != '-' {
                                 return Err(ParserError::UnknownToken(stream.get_row(), stream.get_col()));
                             }
@@ -290,7 +293,7 @@ impl Parser {
                             let d = to_unsigned_integer(md[3..5].to_vec())
                                 .ok_or(ParserError::UnknownToken(stream.get_row(), stream.get_col()))?;
                             if m >= 13 || d >= 32 {
-                                return Err(ParserError::NumberRangeError(stream.get_row(), stream.get_row()));
+                                return Err(ParserError::NumberRangeError(stream.get_row(), stream.get_col()));
                             }
 
                             let look = stream.look(1);
@@ -361,18 +364,23 @@ impl Parser {
                             continue;
                         }
                         // Integer
-                        _ => if let Some(sym) = look {
-                            if !sym.is_ascii() || sym.is_whitespace() || sym == '{' || sym == '}' {
-                                let uint = to_unsigned_integer(digits).ok_or(
-                                    ParserError::NotANumber(stream.get_row(), stream.get_col())
-                                )?;
-                                parsed.push(Token::Integer(uint as i16));
-                                continue;
+                        _ => {
+                            let uint = to_unsigned_integer(digits).ok_or(
+                                ParserError::NotANumber(stream.get_row(), stream.get_col())
+                            )?;
+                            if let Some(sym) = look {
+                                if !sym.is_ascii() || sym.is_whitespace() || sym == '{' || sym == '}' {
+                                    parsed.push(Token::Integer(uint as i16));
+                                    continue;
+                                }
+                                return Err(ParserError::NotANumber(stream.get_row(), stream.get_col()));
                             }
-                            return Err(ParserError::UnknownToken(stream.get_row(), stream.get_col()));
+                            parsed.push(Token::Integer(uint as i16));
+                            continue;
                         }
                     }
                 }
+
                 '-' => {
                     let digits: Vec<char> = stream.next_while(|c| c.is_ascii_digit());
                     if digits.is_empty() {
@@ -387,15 +395,16 @@ impl Parser {
                             if digits_opt.is_empty() {
                                 return Err(ParserError::UnknownToken(stream.get_row(), stream.get_col()));
                             }
+                            let d = to_unsigned_f32(digits, digits_opt)
+                                .ok_or(ParserError::NumberRangeError(stream.get_row(), stream.get_col()))?;
                             if let Some(sym_snd) = stream.look(1) {
                                 if !sym_snd.is_ascii() || sym_snd.is_whitespace() || sym_snd == '{' || sym_snd == '}' {
-                                    let d = to_unsigned_f32(digits, digits_opt)
-                                        .ok_or(ParserError::NumberRangeError(stream.get_row(), stream.get_col()))?;
                                     parsed.push(Token::Double(-d));
                                     continue;
                                 }
                             }
-                            return Err(ParserError::NotANumber(stream.get_row(), stream.get_col()));
+                            parsed.push(Token::Double(-d));
+                            continue;
                         }
                         // negative integer
                         None => {
