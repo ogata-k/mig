@@ -13,6 +13,7 @@ pub mod parser;
 pub enum ConverterError {
     FailedReadInputFile(std::io::Error),
     Parse(ParserError),
+    SyntaxError,
 }
 
 impl From<ParserError> for ConverterError {
@@ -26,6 +27,7 @@ impl Display for ConverterError {
         match self {
             ConverterError::FailedReadInputFile(io_e) => write!(f, "failed read input file,: {}", io_e.to_string()),
             ConverterError::Parse(p_e) => write!(f, "{}", p_e.to_string()),
+            ConverterError::SyntaxError => write!(f, "not syntax of mig-file"),
         }
     }
 }
@@ -50,6 +52,9 @@ pub fn convert_to_migration_file<'a, 'b>(
 
     // TODO check tokens is correct mig-data
     println!("checking parsing data...");
+    if !tokens.check_syntax() {
+        return Err(ConverterError::SyntaxError);
+    }
     println!("finish checking data");
 
     // TODO convert from tokens to code of target's framework

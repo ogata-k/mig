@@ -33,4 +33,15 @@ impl Sequence {
     pub fn get_tokens(&self) -> Vec<Token> {
         return self.seq.clone();
     }
+
+    pub fn check_syntax(&self) -> bool {
+        let tokens = self.get_tokens();
+
+        fn check_syntax_rec(tokens: Vec<Token>) -> bool {
+            // TODO syntax pattern match by LL(1)
+            return false;
+        }
+
+        return check_syntax_rec(tokens);
+    }
 }
