@@ -426,7 +426,6 @@ impl Parser {
                             return Err(ParserError::NotANumber(stream.get_row(), stream.get_col()));
                         }
                     }
-                    return Err(ParserError::UnknownToken(stream.get_row(), stream.get_col()));
                 }
                 // string for user
                 ch if ch.is_ascii_alphabetic() => {
