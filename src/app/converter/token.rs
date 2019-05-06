@@ -165,23 +165,26 @@ impl Sequence {
 
     pub fn check_syntax(&self) -> bool {
         let mut tokens = self.get_tokens();
-        if tokens.len() < 4 { return false; }
+        if tokens.len() < 5 { return false; }
+        // table name check
         if tokens[0].is_name_colon_with("create".to_string())
             & &tokens[1].is_name()
             & &tokens[2].is_l_mid_paren()
             & &tokens[tokens.len() - 1].is_r_mid_paren()
         {
             let l = tokens.len();
-            return check_syntax_rec(&mut tokens[3..l - 1].to_vec());
+            return columns_or_table_options(&mut tokens[3..l - 1].to_vec());
         }
         return false;
     }
 }
 
-fn check_syntax_rec(tokens: &mut Vec<Token>) -> bool {
+fn columns_or_table_options(tokens: &mut Vec<Token>) -> bool {
     let mut seq = tokens.clone();
     let b: bool = match &seq[0] {
-        // TODO recursive pattern
+        // TODO columns or table_options
+        // columns is Name { many1 option }
+        // table_option is NameColon { many1 option and option has Name } or NameColon
         _ => { false }
     };
     return b;

@@ -11,12 +11,12 @@ mgファイルの使用は次のようになります。ただし各\<\>と\<\>�
 \<space\> = (\t | \_)\* <br/>
 \<space_newline\> = (\<space\> | \n)+<br/>
 \<table_body\> = { ((\<table_opt\> | \<column_opt\>) \<space_newline\>)\* }<br/>
-\<table_opt\> = \<opt_name\> ({ \<opt\>+ })?<br/>
+\<table_opt\> = \<opt_name\> ({ (\<opt\> | \<column_name\>)+ })?<br/>
 \<column_opt\> = \<column_name\> { \<opt\>+ }<br/>
 \<column_name\> = \<ascii_string\><br/>
 \<opt\> = \<opt_name\> (\<opt_val\> \<space\>)\*  \<space_newline\><br/>
 \<opt_name\> = :\<ascii_string\><br/>
-\<opt_val\> = \<column_name\> | \<String\> | \<Integer\> | \<Double\> | \<Y-m-d\> | \<Time\> | \<Date_Time\> <br/>
+\<opt_val\> = \<String\> | \<Integer\> | \<Double\> | \<Y-m-d\> | \<Time\> | \<Date_Time\> <br/>
 \<String\> = " .\*  "<br/>
 \<Sign\> = \+ | -<br/>
 \<Integer\> = \<Sign\>?(0 | [1-9][0-9]\*)<br/>
