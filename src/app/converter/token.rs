@@ -164,6 +164,7 @@ impl Sequence {
     }
 
     pub fn check_syntax(&self) -> bool {
+        println!("\nparse data is:");
         let mut tokens = self.get_tokens();
         if tokens.len() < 5 { return false; }
         // table name check
@@ -173,20 +174,81 @@ impl Sequence {
             & &tokens[tokens.len() - 1].is_r_mid_paren()
         {
             let l = tokens.len();
-            return columns_or_table_options(&mut tokens[3..l - 1].to_vec());
+            return check_columns_or_table_options(&mut tokens[3..l - 1].to_vec());
         }
         return false;
     }
 }
 
-fn columns_or_table_options(tokens: &mut Vec<Token>) -> bool {
+fn check_columns_or_table_options(tokens: &mut Vec<Token>) -> bool {
     let mut seq = tokens.clone();
     let b: bool = match &seq[0] {
         // TODO columns or table_options
         // columns is Name { many1 option }
+        t @ Token::Name(_) => {
+            if seq[1].is_l_mid_paren() {
+                let mut separated: Vec<Vec<Token>> = vec!();
+                for group in seq[2..].splitn(2, |t| t.is_r_mid_paren()) {
+                    separated.push(group.to_vec());
+                }
+
+                println!("{:?}: {:?}", t, separated[0]);
+
+                let column_options = &(separated[0]);
+                let others = &(separated[1]);
+
+                if column_options.len() == 0 {
+                    return false;
+                }
+
+                if others.len() == 0 {
+                    return check_column_options(&mut column_options.clone());
+                }
+                return
+                    check_column_options(&mut column_options.clone())
+                        && check_columns_or_table_options(&mut others.clone());
+            }
+            false
+        }
         // table_option is NameColon { many1 option and option has Name } or NameColon
+        t @ Token::NameColon(_) => {
+            if seq[1].is_l_mid_paren() {
+                let mut separated: Vec<Vec<Token>> = vec!();
+                for group in seq[2..].splitn(2, |t| t.is_r_mid_paren()) {
+                    separated.push(group.to_vec());
+                }
+
+                println!("{:?}: {:?}", t, separated[0]);
+
+                let table_options = &(separated[0]);
+                let others = &(separated[1]);
+
+                if table_options.len() == 0 {
+                    return false;
+                }
+
+                if others.len() == 0 {
+                    return check_table_options(&mut table_options.clone());
+                }
+                return
+                    check_table_options(&mut table_options.clone())
+                        && check_columns_or_table_options(&mut others.clone());
+            }
+            println!("{:?}: No Options", t);
+            let mut seq_dummy = seq[1..].to_vec().clone();
+            return check_columns_or_table_options(&mut seq_dummy);
+        }
         _ => { false }
     };
     return b;
 }
 
+fn check_column_options(column_options: &mut Vec<Token>) -> bool {
+    // TODO check options
+    return true;
+}
+
+fn check_table_options(column_options: &mut Vec<Token>) -> bool {
+    // TODO check options
+    return true;
+}
