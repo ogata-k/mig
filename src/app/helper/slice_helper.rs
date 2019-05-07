@@ -1,11 +1,11 @@
 /// return is (head_part, (separator, sequence))
-pub fn split_with_head_and_separator<T: Clone + PartialEq + Copy, F: Fn(&T) -> bool>(slice: &[T], p: F) -> (Vec<T>, Vec<(T, Vec<T>)>)
+pub fn split_with_head_and_separator<T: Clone + PartialEq, F: Fn(&T) -> bool>(slice: &[T], p: F) -> (Vec<T>, Vec<(T, Vec<T>)>)
 {
     let sl = slice.clone();
     if sl.is_empty() { return (vec!(), vec!()); }
     let header: Vec<T> = sl.iter()
-        .take_while(|&t| !p(t))
-        .map(|&t| t)
+        .take_while(|t| !p(&((**t).clone())))
+        .map(|t| t.clone())
         .collect();
     let tail: Vec<T> = sl[header.len() + 1..].to_vec().clone();
 
