@@ -8,6 +8,8 @@ use crate::app::framework::Framework;
 
 pub mod token;
 pub mod parser;
+pub mod syntax;
+pub mod mig;
 
 #[derive(Debug)]
 pub enum ConverterError {
@@ -51,9 +53,7 @@ pub fn convert_to_migration_file<'a, 'b>(
     //println!("{:?}", tokens);
 
     println!("checking parsing data...");
-    if !tokens.check_syntax() {
-        return Err(ConverterError::SyntaxError);
-    }
+    let mig = tokens.check_syntax()?;
     println!("finish checking data");
 
     // TODO convert from tokens to code of target's framework
