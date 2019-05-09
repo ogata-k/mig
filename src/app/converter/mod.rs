@@ -48,9 +48,8 @@ pub fn convert_to_migration_file<'a, 'b>(
     // println!("{:?}", tokens);
     println!("finish parsing");
 
-    println!("{:?}", tokens);
+    //println!("{:?}", tokens);
 
-    // TODO check tokens is correct mig-data
     println!("checking parsing data...");
     if !tokens.check_syntax() {
         return Err(ConverterError::SyntaxError);

@@ -187,7 +187,7 @@ impl Sequence {
     }
 
     pub fn check_syntax(&self) -> bool {
-        println!("\nparse data is:");
+        //println!("\nparse data is:");
         let mut tokens = self.get_tokens();
         if tokens.len() < 5 { return false; }
         // table name check
@@ -214,7 +214,7 @@ fn check_columns_or_table_options(tokens: &mut Vec<Token>) -> bool {
                     separated.push(group.to_vec());
                 }
 
-                println!("{:?}: {:?}", t, separated[0]);
+                //println!("{:?}: {:?}", t, separated[0]);
 
                 let column_options = &(separated[0]);
                 let others = &(separated[1]);
@@ -240,7 +240,7 @@ fn check_columns_or_table_options(tokens: &mut Vec<Token>) -> bool {
                     separated.push(group.to_vec());
                 }
 
-                println!("{:?}: {:?}", t, separated[0]);
+                //println!("{:?}: {:?}", t, separated[0]);
 
                 let table_options = &(separated[0]);
                 let others = &(separated[1]);
@@ -256,7 +256,7 @@ fn check_columns_or_table_options(tokens: &mut Vec<Token>) -> bool {
                     check_table_options(&mut table_options.clone())
                         && check_columns_or_table_options(&mut others.clone());
             }
-            println!("{:?}: No Options", t);
+            //println!("{:?}: No Options", t);
             let mut seq_dummy = seq[1..].to_vec().clone();
             return check_columns_or_table_options(&mut seq_dummy);
         }
@@ -267,7 +267,7 @@ fn check_columns_or_table_options(tokens: &mut Vec<Token>) -> bool {
 
 fn check_column_options(column_options: &mut Vec<Token>) -> bool {
     let r = split_with_head_and_separator(&column_options, |t| t.is_name_colon());
-    println!("{:?}", r);
+    //println!("{:?}", r);
     let mut options = r.1.clone();
     let head = r.0;
     return head.is_empty() && check_options(&mut options, |t| t.is_column_option());
@@ -275,7 +275,7 @@ fn check_column_options(column_options: &mut Vec<Token>) -> bool {
 
 fn check_table_options(table_options: &mut Vec<Token>) -> bool {
     let r = split_with_head_and_separator(&table_options, |t| t.is_name_colon());
-    println!("{:?}", r);
+    //println!("{:?}", r);
     let mut options = r.1.clone();
     let head = r.0;
     return head.is_empty() && check_options(&mut options, |t| t.is_table_option())
