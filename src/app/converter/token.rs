@@ -1,3 +1,5 @@
+use crate::app::helper::slice_helper::split_with_head_and_separator;
+
 #[derive(Debug, PartialEq, Clone)]
 pub enum Token {
     LMidParen,
@@ -141,6 +143,27 @@ impl Token {
             _ => false,
         };
     }
+
+    pub fn is_column_option(&self) -> bool {
+        return
+            self.is_date_time()
+                || self.is_double()
+                || self.is_integer()
+                || self.is_string()
+                || self.is_time()
+                || self.is_ymd();
+    }
+
+    pub fn is_table_option(&self) -> bool {
+        return
+            self.is_date_time()
+                || self.is_double()
+                || self.is_integer()
+                || self.is_string()
+                || self.is_time()
+                || self.is_ymd()
+                || self.is_name();
+    }
 }
 
 #[derive(Debug)]
@@ -183,7 +206,6 @@ impl Sequence {
 fn check_columns_or_table_options(tokens: &mut Vec<Token>) -> bool {
     let mut seq = tokens.clone();
     let b: bool = match &seq[0] {
-        // TODO columns or table_options
         // columns is Name { many1 option }
         t @ Token::Name(_) => {
             if seq[1].is_l_mid_paren() {
@@ -244,11 +266,24 @@ fn check_columns_or_table_options(tokens: &mut Vec<Token>) -> bool {
 }
 
 fn check_column_options(column_options: &mut Vec<Token>) -> bool {
-    // TODO check options
-    return true;
+    let r = split_with_head_and_separator(&column_options, |t| t.is_name_colon());
+    println!("{:?}", r);
+    let mut options = r.1.clone();
+    let head = r.0;
+    return head.is_empty() && check_options(&mut options, |t| t.is_column_option());
 }
 
-fn check_table_options(column_options: &mut Vec<Token>) -> bool {
-    // TODO check options
-    return true;
+fn check_table_options(table_options: &mut Vec<Token>) -> bool {
+    let r = split_with_head_and_separator(&table_options, |t| t.is_name_colon());
+    println!("{:?}", r);
+    let mut options = r.1.clone();
+    let head = r.0;
+    return head.is_empty() && check_options(&mut options, |t| t.is_table_option())
+}
+
+fn check_options<F>(options: &mut Vec<(Token, Vec<Token>)>, mut f: F) -> bool
+    where F: FnMut(&Token) -> bool {
+    options.iter().all(|(name_colon, items)|
+        name_colon.is_name_colon() && items.iter().all(|t| f(&(t.clone())))
+    )
 }
