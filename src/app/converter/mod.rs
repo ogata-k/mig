@@ -3,7 +3,9 @@ use std::error::Error;
 use std::fmt::{Display, Formatter};
 use std::path::PathBuf;
 
+use crate::app::AppError::Converter;
 use crate::app::converter::parser::{lexical_analyzer, ParserError};
+use crate::app::converter::syntax::SyntaxError;
 use crate::app::framework::Framework;
 
 pub mod token;
@@ -15,7 +17,7 @@ pub mod mig;
 pub enum ConverterError {
     FailedReadInputFile(std::io::Error),
     Parse(ParserError),
-    SyntaxError,
+    Syntax(SyntaxError),
 }
 
 impl From<ParserError> for ConverterError {
@@ -24,12 +26,18 @@ impl From<ParserError> for ConverterError {
     }
 }
 
+impl From<SyntaxError> for ConverterError {
+    fn from(s_e: SyntaxError) -> Self {
+        return ConverterError::Syntax(s_e);
+    }
+}
+
 impl Display for ConverterError {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         match self {
             ConverterError::FailedReadInputFile(io_e) => write!(f, "failed read input file,: {}", io_e.to_string()),
-            ConverterError::Parse(p_e) => write!(f, "{}", p_e.to_string()),
-            ConverterError::SyntaxError => write!(f, "not syntax of mig-file"),
+            ConverterError::Parse(p_e) => write!(f, "parse error: {}", p_e.to_string()),
+            ConverterError::Syntax(s_e) => write!(f, "syntax error: {}", s_e.to_string()),
         }
     }
 }
@@ -53,7 +61,7 @@ pub fn convert_to_migration_file<'a, 'b>(
     //println!("{:?}", tokens);
 
     println!("checking parsing data...");
-    let mig = tokens.check_syntax()?;
+    let mig = tokens.analyze_syntax()?;
     println!("finish checking data");
 
     // TODO convert from tokens to code of target's framework
