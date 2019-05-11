@@ -20,6 +20,12 @@ pub enum ConverterError {
     Syntax(SyntaxError),
 }
 
+impl From<std::io::Error> for ConverterError {
+    fn from(i_e: std::io::Error) -> Self {
+        return ConverterError::FailedReadInputFile(i_e);
+    }
+}
+
 impl From<ParserError> for ConverterError {
     fn from(p_e: ParserError) -> Self {
         return ConverterError::Parse(p_e);
@@ -49,8 +55,7 @@ pub fn convert_to_migration_file<'a, 'b>(
     framework: Framework,
 ) -> Result<&'a str, ConverterError> {
     println!("reading from input file...");
-    let content = fs::read_to_string(input)
-        .map_err(|e| ConverterError::FailedReadInputFile(e))?;
+    let content = fs::read_to_string(input)?;
     println!("finish reading file");
 
     println!("parsing content...");
@@ -62,6 +67,8 @@ pub fn convert_to_migration_file<'a, 'b>(
 
     println!("analyze parsing data...");
     let mig = tokens.analyze_syntax()?;
+    println!("{}", "-".repeat(50));
+    println!("Mig:  {:?}", mig);
     println!("finish analyzing data");
 
     // TODO convert from tokens to code of target's framework
