@@ -1,12 +1,25 @@
 use std::fmt::{Display, Error, Formatter};
 
-#[derive(debug)]
-pub enum SyntaxError {}
+use crate::app::converter::ConverterError;
+use crate::app::converter::token::Token;
+
+#[derive(Debug)]
+pub enum SyntaxError {
+    NoOption(Token),
+    UnknownOptionName(Token),
+    UnknownOptionParam(Token),
+    TooShort,
+    UnknownError,
+}
 
 impl Display for SyntaxError {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
         match self {
-            // enum item to string with write!(f, "", item);
+            SyntaxError::NoOption(t) => write!(f, "{:?} has no option", t),
+            SyntaxError::TooShort => write!(f, "input file has not enough num of tokens"),
+            SyntaxError::UnknownError => write!(f, "occurred unknown syntax error"),
+            SyntaxError::UnknownOptionName(t) => write!(f, "{:?} is not option name", t),
+            SyntaxError::UnknownOptionParam(t) => write!(f, "{:?} is not option parameter", t),
         }
     }
 }

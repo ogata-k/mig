@@ -60,9 +60,9 @@ pub fn convert_to_migration_file<'a, 'b>(
 
     //println!("{:?}", tokens);
 
-    println!("checking parsing data...");
+    println!("analyze parsing data...");
     let mig = tokens.analyze_syntax()?;
-    println!("finish checking data");
+    println!("finish analyzing data");
 
     // TODO convert from tokens to code of target's framework
     println!("converting checked data...");
