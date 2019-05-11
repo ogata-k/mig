@@ -275,7 +275,7 @@ fn time_parser() {
     let p_9 = lexical_analyzer(s_9.to_string());
     match p_9 {
         Ok(_) => assert_eq!(1, 2), // not pass test
-        Err(e) => assert_eq!(e, ParserError::NotANumber(1, 4))
+        Err(e) => assert_eq!(e, ParserError::UnknownToken(1, 4))
     }
 }
 

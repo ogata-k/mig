@@ -10,7 +10,7 @@ fn success_1() {
     for i in 0..seq.get_tokens().len() {
         assert_eq!(seq.get_token(i), parsed[i]);
     }
-    assert!(seq.check_syntax());
+    assert!(seq.analyze_syntax().is_ok());
 }
 
 #[test]
@@ -22,7 +22,7 @@ fn failed_1() {
     for i in 0..seq.get_tokens().len() {
         assert_eq!(seq.get_token(i), parsed[i]);
     }
-    assert!(!seq.check_syntax());
+    assert!(seq.analyze_syntax().is_err());
 }
 
 #[test]
@@ -34,7 +34,7 @@ fn failed_2() {
     for i in 0..seq.get_tokens().len() {
         assert_eq!(seq.get_token(i), parsed[i]);
     }
-    assert!(!seq.check_syntax());
+    assert!(seq.analyze_syntax().is_err());
 }
 
 #[test]
@@ -46,7 +46,7 @@ fn failed_3() {
     for i in 0..seq.get_tokens().len() {
         assert_eq!(seq.get_token(i), parsed[i]);
     }
-    assert!(!seq.check_syntax());
+    assert!(seq.analyze_syntax().is_err());
 }
 
 #[test]
@@ -58,6 +58,6 @@ fn failed_4() {
     for i in 0..seq.get_tokens().len() {
         assert_eq!(seq.get_token(i), parsed[i]);
     }
-    assert!(!seq.check_syntax());
+    assert!(seq.analyze_syntax().is_err());
 }
 
