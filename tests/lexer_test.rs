@@ -272,8 +272,8 @@ fn time_parser() {
         Err(e) => assert_eq!(e, ParserError::NotANumber(1, 4))
     }
 
-    let p_8 = lexical_analyzer(s_8.to_string());
-    match p_8 {
+    let p_9 = lexical_analyzer(s_9.to_string());
+    match p_9 {
         Ok(_) => assert_eq!(1, 2), // not pass test
         Err(e) => assert_eq!(e, ParserError::NotANumber(1, 4))
     }
