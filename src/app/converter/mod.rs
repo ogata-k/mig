@@ -14,6 +14,7 @@ pub mod token;
 pub mod parser;
 pub mod syntax;
 pub mod mig;
+pub mod generator;
 
 #[derive(Debug)]
 pub enum ConverterError {
@@ -75,8 +76,10 @@ pub fn convert_to_migration_file<'a, 'b>(
 
     println!("writing data in output file");
     { // limit lifetime
+        let out = output.clone();
+        let name_space = out.parent().unwrap().to_str().unwrap();
         let mut output_file = File::create(output)?;
-        let content: String = mig.generate_string_for(framework);
+        let content: String = mig.generate_string_for(framework, name_space.to_string());
         output_file.write_all(&content.into_bytes())?;
         output_file.flush()?;
     }

@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::iter::Map;
 
+use crate::app::converter::generator::Generator;
 use crate::app::converter::token::Token;
 use crate::app::framework::Framework;
 
@@ -70,8 +71,34 @@ impl Mig {
         return self;
     }
 
-    pub fn generate_string_for(&self, fw: Framework) -> String {
-        // TODO
-        return format!("{:?}", self);
+    pub fn generate_string_for(&self, fw: Framework, name_space: String) -> String {
+        match fw {
+            Framework::Laravel => Laravel {}.generate(self, name_space),
+        }
+    }
+}
+
+struct Laravel {}
+
+impl Generator for Laravel {
+    fn gen_header(&self, mig: &Mig, name_space: String) -> String {
+        unimplemented!()
+    }
+
+    fn gen_column_options(&self, mig: &Mig) -> String {
+        unimplemented!()
+    }
+
+    fn gen_table_options(&self, mig: &Mig) -> String {
+        unimplemented!()
+    }
+
+    fn gen_footer(&self, mig: &Mig) -> String {
+        unimplemented!()
+    }
+
+    // TODO remove after impl other minimum function
+    fn generate(&self, mig: &Mig, name_space: String) -> String {
+        return format!("{:?}", mig);
     }
 }
