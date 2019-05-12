@@ -1,6 +1,8 @@
 use std::{fmt, fs, io};
 use std::error::Error;
 use std::fmt::{Display, Formatter};
+use std::fs::File;
+use std::io::Write;
 use std::path::PathBuf;
 
 use crate::app::AppError::Converter;
@@ -71,12 +73,13 @@ pub fn convert_to_migration_file<'a, 'b>(
     println!("Mig:  {:?}", mig);
     println!("finish analyzing data");
 
-    // TODO convert from tokens to code of target's framework
-    println!("converting checked data...");
-    println!("finish converting data");
-
-    // TODO write token sequence in output file
     println!("writing data in output file");
+    { // limit lifetime
+        let mut output_file = File::create(output)?;
+        let content: String = mig.generate_string_for(framework);
+        output_file.write_all(&content.into_bytes())?;
+        output_file.flush()?;
+    }
     println!("finish writing data");
 
     return Ok("Success!! converted!");

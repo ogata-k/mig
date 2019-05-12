@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::iter::Map;
 
 use crate::app::converter::token::Token;
+use crate::app::framework::Framework;
 
 #[derive(Debug, Clone)]
 pub struct Mig {
@@ -67,5 +68,10 @@ impl Mig {
             _ => panic!("add table options"),
         }
         return self;
+    }
+
+    pub fn generate_string_for(&self, fw: Framework) -> String {
+        // TODO
+        return format!("{:?}", self);
     }
 }
