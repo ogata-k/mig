@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::iter::Map;
 
 use crate::app::converter::generator::Generator;
@@ -9,8 +9,8 @@ use crate::app::framework::Framework;
 pub struct Mig {
     method: String,
     table_name: String,
-    column_options: HashMap<String, Vec<(String, Vec<Token>)>>,
-    table_options: HashMap<String, Vec<(String, Vec<Token>)>>,
+    column_options: HashMap<String, HashMap<String, HashSet<Token>>>,
+    table_options: HashMap<String, HashMap<String, HashSet<Token>>>,
 }
 
 impl Mig {
@@ -43,13 +43,19 @@ impl Mig {
         match column_name {
             Token::Name(name) => {
                 if self.column_options.get(&name).is_none() {
-                    self.column_options.insert(name, options.clone());
-                } else {
-                    let mut tokens = self.column_options.get(&name).unwrap().clone();
-                    tokens.append(options);
-                    self.column_options.insert(name, tokens.to_vec());
+                    self.column_options.insert(name, HashSet::new());
                 }
-            },
+                let mut option_map: &HashMap<String, HashSet<Token>> = self.column_options.get(&name).unwrap();
+                let mut value_set: HashSet<Token> = HashSet::new();
+                for option in options {
+                    let key = option.0.clone();
+                    for value in option.1 {
+                        value_set.insert(value.clone());
+                    }
+                    option_map.insert(key, value_set.clone());
+                    value_set.clear()
+                }
+            }
             _ => panic!("add column options"),
         }
         return self;
@@ -59,13 +65,20 @@ impl Mig {
         match option_name {
             Token::NameColon(name) => {
                 if self.table_options.get(&name).is_none() {
-                    self.table_options.insert(name, options.clone());
-                } else {
-                    let mut tokens = self.table_options.get(&name).unwrap().clone();
-                    tokens.append(options);
-                    self.table_options.insert(name, tokens.to_vec());
+                    self.table_options.insert(name, HashSet::new());
                 }
-            },
+
+                let mut option_map: &HashMap<String, HashSet<Token>> = self.table_options.get(&name).unwrap();
+                let mut value_set: HashSet<Token> = HashSet::new();
+                for option in options {
+                    let key = option.0.clone();
+                    for value in option.1 {
+                        value_set.insert(value.clone());
+                    }
+                    option_map.insert(key, value_set.clone());
+                    value_set.clear();
+                }
+            }
             _ => panic!("add table options"),
         }
         return self;
