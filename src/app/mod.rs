@@ -117,7 +117,9 @@ pub fn action_controller(matches: ArgMatches) -> Result<&str, AppError> {
     }
     let output_file_path_string =
         with_timestamp(&output_file_opt.unwrap(), &framework_type.unwrap());
-    let output_file_path = PathBuf::from(output_file_path_string.as_str());
+    let in_file_c = input_file_path.clone();
+    let parent = in_file_c.parent().unwrap();
+    let output_file_path = parent.join(PathBuf::from(output_file_path_string.as_str()));
 
     // check extension
     if !is_extension(&input_file_path, "mig") {
