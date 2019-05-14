@@ -13,8 +13,9 @@ use crate::app::framework::Framework;
 pub mod token;
 pub mod parser;
 pub mod syntax;
-pub mod mig;
-pub mod generator;
+mod mig;
+mod generator;
+mod laravel;
 
 #[derive(Debug)]
 pub enum ConverterError {
