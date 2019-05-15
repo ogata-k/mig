@@ -211,6 +211,9 @@ impl Sequence {
         println!("  {:?}", mig);
         return Err(SyntaxError::UnknownError);
     }
+
+    // TODO to change for Ast
+    //pub fn parser
 }
 
 fn analyze_columns_or_table_options<'a>(mig: &'a mut Mig, tokens: &mut Vec<Token>) -> Result<&'a mut Mig, SyntaxError> {

@@ -1,4 +1,4 @@
-use mig::app::converter::parser::lexical_analyzer;
+use mig::app::converter::lexer::lexical_analyzer;
 use mig::app::converter::token::Token::*;
 
 #[test]

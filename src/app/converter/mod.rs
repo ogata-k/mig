@@ -6,12 +6,12 @@ use std::io::Write;
 use std::path::PathBuf;
 
 use crate::app::AppError::Converter;
-use crate::app::converter::parser::{lexical_analyzer, ParserError};
+use crate::app::converter::lexer::{LexerError, lexical_analyzer};
 use crate::app::converter::syntax::SyntaxError;
 use crate::app::framework::Framework;
 
 pub mod token;
-pub mod parser;
+pub mod lexer;
 pub mod syntax;
 mod mig_ast;
 mod mig;
@@ -21,7 +21,7 @@ mod laravel;
 #[derive(Debug)]
 pub enum ConverterError {
     FailedReadInputFile(std::io::Error),
-    Parse(ParserError),
+    Parse(LexerError),
     Syntax(SyntaxError),
 }
 
@@ -31,8 +31,8 @@ impl From<std::io::Error> for ConverterError {
     }
 }
 
-impl From<ParserError> for ConverterError {
-    fn from(p_e: ParserError) -> Self {
+impl From<LexerError> for ConverterError {
+    fn from(p_e: LexerError) -> Self {
         return ConverterError::Parse(p_e);
     }
 }

@@ -3,7 +3,7 @@ extern crate mig;
 use chrono::Date;
 
 use mig::app;
-use mig::app::converter::parser::{lexical_analyzer, ParserError};
+use mig::app::converter::lexer::{LexerError, lexical_analyzer};
 use mig::app::converter::token::Token;
 
 #[test]
@@ -101,7 +101,7 @@ fn column_option_parser() {
     let p_3 = lexical_analyzer(s_3.to_string());
     match p_3 {
         Ok(_) => assert_eq!(1, 2), // not pass this test
-        Err(e) => assert_eq!(e, ParserError::UnknownToken(1, 7))
+        Err(e) => assert_eq!(e, LexerError::UnknownToken(1, 7))
     }
 }
 
@@ -125,7 +125,7 @@ fn integer_parser() {
     let p_4 = lexical_analyzer(s_4.to_string());
     match p_4 {
         Ok(_) => assert_eq!(1, 2), // not pass this test
-        Err(e) => assert_eq!(e, ParserError::NotANumber(1, 2)),
+        Err(e) => assert_eq!(e, LexerError::NotANumber(1, 2)),
     }
 
     let p_5 = lexical_analyzer(s_5.to_string()).unwrap();
@@ -159,7 +159,7 @@ fn double_parser() {
     let p_5 = lexical_analyzer(s_5.to_string());
     match p_5 {
         Ok(_) => assert_ne!(1, 2), // not pass this test
-        Err(e) => assert_eq!(e, ParserError::NotANumber(1, 4)),
+        Err(e) => assert_eq!(e, LexerError::NotANumber(1, 4)),
     }
 
     let p_6 = lexical_analyzer(s_6.to_string()).unwrap();
@@ -170,7 +170,7 @@ fn double_parser() {
     let p_7 = lexical_analyzer(s_7.to_string());
     match p_7 {
         Ok(_) => assert_ne!(1, 2), // not pass this test
-        Err(e) => assert_eq!(e, ParserError::NotANumber(1, 3)),
+        Err(e) => assert_eq!(e, LexerError::NotANumber(1, 3)),
     }
 }
 
@@ -193,31 +193,31 @@ fn ymd_parser() {
     let p_3 = lexical_analyzer(s_3.to_string());
     match p_3 {
         Ok(_) => assert_eq!(1, 2), // not pass test
-        Err(e) => assert_eq!(e, ParserError::NotANumber(1, 2))
+        Err(e) => assert_eq!(e, LexerError::NotANumber(1, 2))
     }
 
     let p_4 = lexical_analyzer(s_4.to_string());
     match p_4 {
         Ok(_) => assert_eq!(1, 2), // not pass test
-        Err(e) => assert_eq!(e, ParserError::UnknownToken(1, 11))
+        Err(e) => assert_eq!(e, LexerError::UnknownToken(1, 11))
     }
 
     let p_5 = lexical_analyzer(s_5.to_string());
     match p_5 {
         Ok(_) => assert_eq!(1, 2), // not pass test
-        Err(e) => assert_eq!(e, ParserError::UnknownToken(1, 11))
+        Err(e) => assert_eq!(e, LexerError::UnknownToken(1, 11))
     }
 
     let p_6 = lexical_analyzer(s_6.to_string());
     match p_6 {
         Ok(_) => assert_eq!(1, 2), // not pass test
-        Err(e) => assert_eq!(e, ParserError::NumberRangeError(1, 10))
+        Err(e) => assert_eq!(e, LexerError::NumberRangeError(1, 10))
     }
 
     let p_7 = lexical_analyzer(s_7.to_string());
     match p_7 {
         Ok(_) => assert_eq!(1, 2), // not pass test
-        Err(e) => assert_eq!(e, ParserError::NumberRangeError(1, 10))
+        Err(e) => assert_eq!(e, LexerError::NumberRangeError(1, 10))
     }
 }
 
@@ -245,37 +245,37 @@ fn time_parser() {
     let p_4 = lexical_analyzer(s_4.to_string());
     match p_4 {
         Ok(_) => assert_eq!(1, 2), // not pass test
-        Err(e) => assert_eq!(e, ParserError::NumberRangeError(1, 8))
+        Err(e) => assert_eq!(e, LexerError::NumberRangeError(1, 8))
     }
 
     let p_5 = lexical_analyzer(s_5.to_string());
     match p_5 {
         Ok(_) => assert_eq!(1, 2), // not pass test
-        Err(e) => assert_eq!(e, ParserError::NumberRangeError(1, 8))
+        Err(e) => assert_eq!(e, LexerError::NumberRangeError(1, 8))
     }
 
     let p_6 = lexical_analyzer(s_6.to_string());
     match p_6 {
         Ok(_) => assert_eq!(1, 2), // not pass test
-        Err(e) => assert_eq!(e, ParserError::NumberRangeError(1, 8))
+        Err(e) => assert_eq!(e, LexerError::NumberRangeError(1, 8))
     }
 
     let p_7 = lexical_analyzer(s_7.to_string());
     match p_7 {
         Ok(_) => assert_eq!(1, 2), // not pass test
-        Err(e) => assert_eq!(e, ParserError::NumberRangeError(1, 8))
+        Err(e) => assert_eq!(e, LexerError::NumberRangeError(1, 8))
     }
 
     let p_8 = lexical_analyzer(s_8.to_string());
     match p_8 {
         Ok(_) => assert_eq!(1, 2), // not pass test
-        Err(e) => assert_eq!(e, ParserError::NotANumber(1, 4))
+        Err(e) => assert_eq!(e, LexerError::NotANumber(1, 4))
     }
 
     let p_9 = lexical_analyzer(s_9.to_string());
     match p_9 {
         Ok(_) => assert_eq!(1, 2), // not pass test
-        Err(e) => assert_eq!(e, ParserError::UnknownToken(1, 4))
+        Err(e) => assert_eq!(e, LexerError::UnknownToken(1, 4))
     }
 }
 
@@ -293,24 +293,24 @@ fn datetime_parser() {
     let p_2 = lexical_analyzer(s_2.to_string());
     match p_2 {
         Ok(_) => assert_eq!(1, 2),
-        Err(e) => assert_eq!(e, ParserError::UnknownToken(1, 11))
+        Err(e) => assert_eq!(e, LexerError::UnknownToken(1, 11))
     }
 
     let p_3 = lexical_analyzer(s_3.to_string());
     match p_3 {
         Ok(_) => assert_eq!(1, 2),
-        Err(e) => assert_eq!(e, ParserError::UnknownToken(1, 20))
+        Err(e) => assert_eq!(e, LexerError::UnknownToken(1, 20))
     }
 
     let p_4 = lexical_analyzer(s_4.to_string());
     match p_4 {
         Ok(_) => assert_eq!(1, 2),
-        Err(e) => assert_eq!(e, ParserError::UnknownToken(1, 11))
+        Err(e) => assert_eq!(e, LexerError::UnknownToken(1, 11))
     }
 
     let p_5 = lexical_analyzer(s_5.to_string());
     match p_5 {
         Ok(_) => assert_eq!(1, 2),
-        Err(e) => assert_eq!(e, ParserError::UnknownToken(1, 12))
+        Err(e) => assert_eq!(e, LexerError::UnknownToken(1, 12))
     }
 }
