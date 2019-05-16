@@ -214,6 +214,7 @@ impl Sequence {
     }
 
     // TODO to change for Ast
+    // TODO 雑多な解析木->構造確認->最適化->AST->(Migオプション名, 引数の個数, FW用の名前)からなるJsonを利用した最終確認->Mig
     pub fn parse(&self) -> Result<Ast, SyntaxError> {
         let tokens = self.get_tokens().clone();
         if tokens.len() < 5 { return Err(SyntaxError::TooShort); }
@@ -223,14 +224,12 @@ impl Sequence {
                 (Token::NameColon(method), Token::Name(table_name), Token::LMidParen, Token::RMidParen)
                 => {
                     // set table params of Mig
-                    let ast = Ast::new(method.clone(), table_name.clone());
-                    return Ok(ast);
-                    /*
+                    let mut ast = Ast::new(method.clone(), table_name.clone());
                     let l = tokens.len();
-                    let res = analyze_columns_or_table_options(&mut mig, &mut tokens[3..l - 1].to_vec());
-                    println!("  {:?}", mig);
-                    return res.and_then(|mig| Ok(mig.clone()));
-                    */
+                    // TODO not imppl yet parse_options
+                    parse_options(&mut ast, &mut tokens[3..l - 1].to_vec())?;
+                    println!(" {:?}", ast);
+                    return Ok(ast);
                 }
                 _ => {
                     return Err(SyntaxError::UnknownError);
