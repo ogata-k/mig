@@ -6,13 +6,11 @@ use crate::app::converter::token::Token;
 pub enum Ast {
     Program { start: Box<Ast> },
     Method { method: Box<Ast>, table_name: Box<Ast>, table_define: Box<Ast> },
-    // HashMap<option_name, options_set>
-    Options { table_define: HashMap<String, Box<Ast>> },
+    Options { table_define: Box<Ast> },
+    Set(Vec<Box<Ast>>),
     // option_param: Set
     ColumnOption { option_name: Box<Ast>, option_param: Box<Ast> },
     TableOption { option_name: Box<Ast>, option_param: Box<Ast> },
-    Set(Vec<Box<Ast>>),
-    // use Vec as Set, so unique necessary!!!!!!!!!
     Ymd(Box<Ast>, Box<Ast>, Box<Ast>),
     Time(Box<Ast>, Box<Ast>, Box<Ast>),
     DateTime(Box<Ast>, Box<Ast>, Box<Ast>, Box<Ast>, Box<Ast>, Box<Ast>),

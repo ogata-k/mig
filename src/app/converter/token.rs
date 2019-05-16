@@ -226,7 +226,7 @@ impl Sequence {
                     // set table params of Mig
                     let mut ast = Ast::new(method.clone(), table_name.clone());
                     let l = tokens.len();
-                    // TODO not imppl yet parse_options
+                    // TODO not impl yet parse_options
                     parse_options(&mut ast, &mut tokens[3..l - 1].to_vec())?;
                     println!(" {:?}", ast);
                     return Ok(ast);
