@@ -1,3 +1,5 @@
+use term::terminfo::parser::compiled::parse;
+
 use crate::app::converter::ast::Ast;
 use crate::app::converter::ConverterError::Syntax;
 use crate::app::converter::mig::Mig;
@@ -250,13 +252,10 @@ impl Sequence {
 
 fn parse_options(tokens: &Vec<Token>) -> Result<Vec<Box<Ast>>, SyntaxError> {
     // TODO
-}
-
-fn analyze_columns_or_table_options<'a>(mig: &'a mut Mig, tokens: &mut Vec<Token>) -> Result<&'a mut Mig, SyntaxError> {
     let seq = tokens.clone();
     match &seq[0] {
 // columns is Name { many1 option }
-        t @ Token::Name(_) => {
+        Token::Name(name) => {
             if seq[1].is_l_mid_paren() {
                 let mut separated: Vec<Vec<Token>> = vec!();
 // split at last of first option from first left mid -paren
@@ -264,127 +263,201 @@ fn analyze_columns_or_table_options<'a>(mig: &'a mut Mig, tokens: &mut Vec<Token
                     separated.push(group.to_vec());
                 }
 
-                println!("  {:?}:  {:?}", t, separated[0]);
-
+                // this column
                 let column_options = &(separated[0]);
+                // other column or table
                 let others = &(separated[1]);
 
                 if column_options.len() == 0 {
                     return Err(SyntaxError::NoOption(t.clone()));
                 }
 
-                if others.len() == 0 {
-                    return analyze_column(mig, t.clone(), &mut column_options.clone());
+                let mut col_opt =
+                    parse_column_opt(name.to_string(), column_options.clone())?;
+                if others.len() != 0 {
+                    col_opt.append(&mut parse_options(&others.clone())?)
                 }
-                return
-                    analyze_column(mig, t.clone(), &mut column_options.clone())
-                        .and_then(|mig| analyze_columns_or_table_options(mig, &mut others.clone()));
+                return Ok(col_opt);
             }
+
             return Err(SyntaxError::UnknownError);
         }
 // table_option is NameColon { many1 option and option has Name } or NameColon
-        t @ Token::NameColon(_) => {
+        Token::NameColon(name_c) => {
             if seq[1].is_l_mid_paren() {
                 let mut separated: Vec<Vec<Token>> = vec!();
                 for group in seq[2..].splitn(2, |t| t.is_r_mid_paren()) {
                     separated.push(group.to_vec());
                 }
 
-                println!("  {:?}:  {:?}", t, separated[0]);
-
+                // this table
                 let table_options = &(separated[0]);
+
+                // other tables or columns
                 let others = &(separated[1]);
 
                 if table_options.len() == 0 {
                     return Err(SyntaxError::NoOption(t.clone()));
                 }
 
-                if others.len() == 0 {
-                    return analyze_table(mig, t.clone(), &mut table_options.clone());
+                let mut table_opt =
+                    parse_table_opt(t.clone(), table_options.clone())?;
+                if others.len() != 0 {
+                    table_opt.append(&mut parse_options(others)?);
                 }
-                return
-                    analyze_table(mig, t.clone(), &mut table_options.clone())
-                        .and_then(|mig| analyze_columns_or_table_options(mig, &mut others.clone()));
+                return Ok(table_opt);
             }
-            println!("  {:?}:  No Options", t);
+            // TODO modify when table option has no options
             mig.add_table_options(t.clone(), &mut vec!());
-            let mut seq_dummy = seq[1..].to_vec().clone();
-            return analyze_columns_or_table_options(mig, &mut seq_dummy);
+            let mut seq_dummy =
+                seq[1..].to_vec().clone();
+            return parse_options(&seq_dummy);
         }
         _ => { Err(SyntaxError::UnknownError) }
     }
 }
 
-fn analyze_column<'a>(mig: &'a mut Mig, token: Token, column_options: &mut Vec<Token>) -> Result<&'a mut Mig, SyntaxError> {
-    let r = split_with_head_and_separator(&column_options, |t| t.is_name_colon());
-//println!("{:?}", r);
-    let mut options = r.1.clone();
-    let head = r.0;
-    if head.is_empty() {
-        return analyze_column_options(mig, token, &mut options);
-    }
-    return Err(SyntaxError::UnknownOptionName(head[0].clone()));
+fn parse_column_opt(name: String, column_options: Vec<Token>) -> Result<Vec<Box<Ast>>, SyntaxError> {
+// TODO
 }
 
-fn analyze_table<'a>(mig: &'a mut Mig, token: Token, table_options: &mut Vec<Token>) -> Result<&'a mut Mig, SyntaxError> {
-    let r = split_with_head_and_separator(&table_options, |t| t.is_name_colon());
-//println!("{:?}", r);
-    let mut options = r.1.clone();
-    let head = r.0;
+fn parse_table_opt(name: String, table_options: Vec<Token>) -> Result<Vec<Box<Ast>>, SyntaxError> {
+// TODO }
 
-    if head.is_empty() {
-        return analyze_table_options(mig, token, &mut options);
-    }
-    return Err(SyntaxError::UnknownOptionName(head[0].clone()));
-}
 
-fn analyze_table_options<'a>(mig: &'a mut Mig, token: Token, options: &mut Vec<(Token, Vec<Token>)>) -> Result<&'a mut Mig, SyntaxError> {
-    let mut token_s: Vec<(String, Vec<Token>)> = vec!();
-    for (name, option_params) in options.iter() {
-//println!("{:?}", (name, option_params));
-        if name.is_name_colon() {
-            for param in option_params.iter() {
-                if param.is_table_option() {
-                    continue;
+    fn analyze_columns_or_table_options<'a>(mig: &'a mut Mig, tokens: &mut Vec<Token>) -> Result<&'a mut Mig, SyntaxError> {
+        let seq = tokens.clone();
+        match &seq[0] {
+// columns is Name { many1 option }
+            t @ Token::Name(_) => {
+                if seq[1].is_l_mid_paren() {
+                    let mut separated: Vec<Vec<Token>> = vec!();
+// split at last of first option from first left mid -paren
+                    for group in seq[2..].splitn(2, |t| t.is_r_mid_paren()) {
+                        separated.push(group.to_vec());
+                    }
+
+                    println!("  {:?}:  {:?}", t, separated[0]);
+
+                    let column_options = &(separated[0]);
+                    let others = &(separated[1]);
+
+                    if column_options.len() == 0 {
+                        return Err(SyntaxError::NoOption(t.clone()));
+                    }
+
+                    if others.len() == 0 {
+                        return analyze_column(mig, t.clone(), &mut column_options.clone());
+                    }
+                    return
+                        analyze_column(mig, t.clone(), &mut column_options.clone())
+                            .and_then(|mig| analyze_columns_or_table_options(mig, &mut others.clone()));
                 }
-//println!("{:?}", param);
-                return Err(SyntaxError::UnknownOptionParam(param.clone()));
+                return Err(SyntaxError::UnknownError);
             }
+// table_option is NameColon { many1 option and option has Name } or NameColon
+            t @ Token::NameColon(_) => {
+                if seq[1].is_l_mid_paren() {
+                    let mut separated: Vec<Vec<Token>> = vec!();
+                    for group in seq[2..].splitn(2, |t| t.is_r_mid_paren()) {
+                        separated.push(group.to_vec());
+                    }
 
-            match name {
-                Token::NameColon(s) => token_s.push((s.to_string(), option_params.clone())),
-                _ => unreachable!(),
-            }
-            continue;
-        }
-        return Err(SyntaxError::UnknownOptionName(name.clone()));
-    }
+                    println!("  {:?}:  {:?}", t, separated[0]);
 
-    mig.add_table_options(token, &mut token_s);
-    return Ok(mig);
-}
+                    let table_options = &(separated[0]);
+                    let others = &(separated[1]);
 
-fn analyze_column_options<'a>(mig: &'a mut Mig, token: Token, options: &mut Vec<(Token, Vec<Token>)>) -> Result<&'a mut Mig, SyntaxError> {
-    let mut token_s: Vec<(String, Vec<Token>)> = vec!();
-    for (name, option_params) in options.iter() {
-//println!("{:?}", (name, option_params));
-        if name.is_name_colon() {
-            for param in option_params.iter() {
-                if param.is_column_option() {
-                    continue;
+                    if table_options.len() == 0 {
+                        return Err(SyntaxError::NoOption(t.clone()));
+                    }
+
+                    if others.len() == 0 {
+                        return analyze_table(mig, t.clone(), &mut table_options.clone());
+                    }
+                    return
+                        analyze_table(mig, t.clone(), &mut table_options.clone())
+                            .and_then(|mig| analyze_columns_or_table_options(mig, &mut others.clone()));
                 }
-//println!("{:?}", param);
-                return Err(SyntaxError::UnknownOptionParam(param.clone()));
+                println!("  {:?}:  No Options", t);
+                mig.add_table_options(t.clone(), &mut vec!());
+                let mut seq_dummy = seq[1..].to_vec().clone();
+                return analyze_columns_or_table_options(mig, &mut seq_dummy);
             }
-
-            match name {
-                Token::NameColon(s) => token_s.push((s.to_string(), option_params.clone())),
-                _ => unreachable!(),
-            }
-            continue;
+            _ => { Err(SyntaxError::UnknownError) }
         }
-        return Err(SyntaxError::UnknownOptionName(name.clone()));
     }
-    mig.add_column_options(token, &mut token_s);
-    return Ok(mig);
-}
+
+    fn analyze_column<'a>(mig: &'a mut Mig, token: Token, column_options: &mut Vec<Token>) -> Result<&'a mut Mig, SyntaxError> {
+        let r = split_with_head_and_separator(&column_options, |t| t.is_name_colon());
+//println!("{:?}", r);
+        let mut options = r.1.clone();
+        let head = r.0;
+        if head.is_empty() {
+            return analyze_column_options(mig, token, &mut options);
+        }
+        return Err(SyntaxError::UnknownOptionName(head[0].clone()));
+    }
+
+    fn analyze_table<'a>(mig: &'a mut Mig, token: Token, table_options: &mut Vec<Token>) -> Result<&'a mut Mig, SyntaxError> {
+        let r = split_with_head_and_separator(&table_options, |t| t.is_name_colon());
+//println!("{:?}", r);
+        let mut options = r.1.clone();
+        let head = r.0;
+
+        if head.is_empty() {
+            return analyze_table_options(mig, token, &mut options);
+        }
+        return Err(SyntaxError::UnknownOptionName(head[0].clone()));
+    }
+
+    fn analyze_table_options<'a>(mig: &'a mut Mig, token: Token, options: &mut Vec<(Token, Vec<Token>)>) -> Result<&'a mut Mig, SyntaxError> {
+        let mut token_s: Vec<(String, Vec<Token>)> = vec!();
+        for (name, option_params) in options.iter() {
+//println!("{:?}", (name, option_params));
+            if name.is_name_colon() {
+                for param in option_params.iter() {
+                    if param.is_table_option() {
+                        continue;
+                    }
+//println!("{:?}", param);
+                    return Err(SyntaxError::UnknownOptionParam(param.clone()));
+                }
+
+                match name {
+                    Token::NameColon(s) => token_s.push((s.to_string(), option_params.clone())),
+                    _ => unreachable!(),
+                }
+                continue;
+            }
+            return Err(SyntaxError::UnknownOptionName(name.clone()));
+        }
+
+        mig.add_table_options(token, &mut token_s);
+        return Ok(mig);
+    }
+
+    fn analyze_column_options<'a>(mig: &'a mut Mig, token: Token, options: &mut Vec<(Token, Vec<Token>)>) -> Result<&'a mut Mig, SyntaxError> {
+        let mut token_s: Vec<(String, Vec<Token>)> = vec!();
+        for (name, option_params) in options.iter() {
+//println!("{:?}", (name, option_params));
+            if name.is_name_colon() {
+                for param in option_params.iter() {
+                    if param.is_column_option() {
+                        continue;
+                    }
+//println!("{:?}", param);
+                    return Err(SyntaxError::UnknownOptionParam(param.clone()));
+                }
+
+                match name {
+                    Token::NameColon(s) => token_s.push((s.to_string(), option_params.clone())),
+                    _ => unreachable!(),
+                }
+                continue;
+            }
+            return Err(SyntaxError::UnknownOptionName(name.clone()));
+        }
+        mig.add_column_options(token, &mut token_s);
+        return Ok(mig);
+    }
