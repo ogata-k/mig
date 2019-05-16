@@ -227,7 +227,17 @@ impl Sequence {
                     let mut ast = Ast::new(method.clone(), table_name.clone());
                     let l = tokens.len();
                     // TODO not impl yet parse_options
-                    parse_options(&mut ast, &mut tokens[3..l - 1].to_vec())?;
+                    let ast: Ast = Ast::Program {
+                        start: Box::new(Ast::Method {
+                            method: Box::new(Ast::String(method.to_string())),
+                            table_name: Box::new(Ast::String(table_name.to_string())),
+                            table_define: Box::new(Ast::Options {
+                                table_define: Box::new(Ast::Set(
+                                    parse_options(&mut tokens[3..l - 1].to_vec())?
+                                )),
+                            }),
+                        })
+                    };
                     println!(" {:?}", ast);
                     return Ok(ast);
                 }
@@ -236,6 +246,10 @@ impl Sequence {
                 }
             }
     }
+}
+
+fn parse_options(tokens: &Vec<Token>) -> Result<Vec<Box<Ast>>, SyntaxError> {
+    // TODO
 }
 
 fn analyze_columns_or_table_options<'a>(mig: &'a mut Mig, tokens: &mut Vec<Token>) -> Result<&'a mut Mig, SyntaxError> {
