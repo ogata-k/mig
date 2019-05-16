@@ -13,7 +13,7 @@ use crate::app::framework::Framework;
 pub mod token;
 pub mod lexer;
 pub mod syntax;
-mod mig_ast;
+mod ast;
 mod mig;
 mod generator;
 mod laravel;
