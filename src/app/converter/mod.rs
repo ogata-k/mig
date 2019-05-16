@@ -71,6 +71,15 @@ pub fn convert_to_migration_file<'a, 'b>(
     //println!("{:?}", tokens);
 
     println!("analyze parsing data...");
+
+    {
+        println!("-- ast start --");
+        let c = tokens.clone();
+        let ast = c.parse()?;
+        println!("{:?}", ast);
+        println!("--ast finish--");
+    }
+
     let mig = tokens.analyze_syntax()?;
     println!("{}", "-".repeat(50));
     println!("Mig:  {:?}", mig);
