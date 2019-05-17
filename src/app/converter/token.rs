@@ -278,8 +278,19 @@ impl Sequence {
 }
 
 fn parse_options(tokens: &Vec<Token>) -> Result<Vec<Box<Ast>>, SyntaxError> {
-    // TODO
-    let seq = tokens.clone();
+    let mut stream = tokens.iter().peekable();
+    let res_vec = Vec::new();
+
+    // peek() does not consume
+    while None != stream.peek() {
+        // TODO
+    }
+
+    return Ok(res_vec);
+
+
+
+
     match &seq[0] {
 // columns is Name { many1 option }
         Token::Name(name) => {
