@@ -25,6 +25,36 @@ pub trait ToAst{
     fn to_ast(&self)->Ast;
 }
 
+impl ToAst for u16 {
+    fn to_ast(&self) -> Ast{
+        return Ast::UnsignedInteger(self.clone());
+    }
+}
+
+impl ToAst for u8 {
+    fn to_ast(&self) -> Ast{
+        return Ast::UnsignedInteger(self.clone() as u16);
+    }
+}
+
+impl ToAst for i16 {
+    fn to_ast(&self) -> Ast {
+        return Ast::Integer(self.clone());
+    }
+}
+
+impl ToAst for f32 {
+    fn to_ast(&self) -> Ast {
+        return Ast::Double(self.clone());
+    }
+}
+
+impl ToAst for String {
+    fn to_ast(&self) -> Ast {
+        return Ast::String(self.to_string());
+    }
+}
+
 // TODO SequenceからAstへの変換とAstの最適化(結果はMig構造体という名前に）した木への変換を実装する。
 // TODO 最終的に木を走査しながら文字列へ変換する
 
