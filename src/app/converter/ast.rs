@@ -18,6 +18,11 @@ pub enum Ast {
     Integer(i16),
     Double(f32),
     String(String),
+    None,
+}
+
+pub trait ToAst{
+    fn to_ast(&self)->Ast;
 }
 
 // TODO SequenceからAstへの変換とAstの最適化(結果はMig構造体という名前に）した木への変換を実装する。
