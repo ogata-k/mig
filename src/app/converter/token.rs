@@ -296,7 +296,7 @@ fn parse_options(tokens: &Vec<Token>) -> Result<Vec<Box<Ast>>, SyntaxError> {
                 let others = &(separated[1]);
 
                 if column_options.len() == 0 {
-                    return Err(SyntaxError::NoOption(t.clone()));
+                    return Err(SyntaxError::NoOption(Token::Name(name.to_string())));
                 }
 
                 let mut col_opt =
@@ -324,11 +324,11 @@ fn parse_options(tokens: &Vec<Token>) -> Result<Vec<Box<Ast>>, SyntaxError> {
                 let others = &(separated[1]);
 
                 if table_options.len() == 0 {
-                    return Err(SyntaxError::NoOption(t.clone()));
+                    return Err(SyntaxError::NoOption(Token::NameColon(name_c.to_string())));
                 }
 
                 let mut table_opt =
-                    parse_table_opt(t.clone(), table_options.clone())?;
+                    parse_table_opt(name_c.to_string(), table_options.clone())?;
                 if others.len() != 0 {
                     table_opt.append(&mut parse_options(others)?);
                 }
