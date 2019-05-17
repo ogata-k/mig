@@ -35,13 +35,13 @@ impl ToAst for u8 {
 
 impl ToAst for i16 {
     fn to_ast(&self) -> Ast {
-        return Ast::Integer(self.clone());
+        return Ast::Integer(*self.clone());
     }
 }
 
 impl ToAst for f32 {
     fn to_ast(&self) -> Ast {
-        return Ast::Double(self.clone());
+        return Ast::Double(*self.clone());
     }
 }
 
