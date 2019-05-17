@@ -1,10 +1,8 @@
 use std::collections::HashMap;
-use std::iter::Map;
 
 use crate::app::converter::generator::Generator;
 use crate::app::converter::token::Token;
 use crate::app::framework::Framework;
-use crate::app::helper::string_helper::to_head_large;
 use crate::app::converter::laravel::Laravel;
 
 #[derive(Debug, Clone)]

@@ -13,14 +13,11 @@ use converter::convert_to_migration_file;
 use framework::to_framework_type;
 use helper::file_helper::{
     get_extension_for_framework,
-    get_file_name_for_framework,
     is_extension,
     with_timestamp,
 };
-use helper::io_helper::confirm;
-
-use crate::app::AppError::UnreachedError;
 use crate::app::converter::ConverterError;
+
 
 pub mod converter;
 pub mod framework;

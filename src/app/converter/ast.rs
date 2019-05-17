@@ -1,7 +1,3 @@
-use std::collections::{HashMap, HashSet};
-
-use crate::app::converter::token::Token;
-
 #[derive(Debug, Clone, PartialEq)]
 pub enum Ast {
     Program { start: Box<Ast> },

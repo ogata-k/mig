@@ -1,5 +1,4 @@
 use crate::app::converter::ast::{Ast, ToAst};
-use crate::app::converter::ConverterError::Syntax;
 use crate::app::converter::mig::Mig;
 use crate::app::converter::syntax::SyntaxError;
 use crate::app::helper::slice_helper::split_with_head_and_separator;

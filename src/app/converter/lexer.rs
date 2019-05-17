@@ -1,10 +1,6 @@
-use std::error;
-use std::error::Error;
 use std::fmt;
 use std::fmt::{Display, Formatter};
 use std::str::Chars;
-
-use failure::Fail;
 
 use crate::app::converter::token::{Sequence, Token};
 

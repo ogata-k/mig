@@ -1,6 +1,5 @@
 use std::fmt::{Display, Error, Formatter};
 
-use crate::app::converter::ConverterError;
 use crate::app::converter::token::Token;
 
 #[derive(Debug)]

@@ -1,11 +1,9 @@
-use std::{fmt, fs, io};
-use std::error::Error;
+use std::{fmt, fs};
 use std::fmt::{Display, Formatter};
 use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
 
-use crate::app::AppError::Converter;
 use crate::app::converter::lexer::{LexerError, lexical_analyzer};
 use crate::app::converter::syntax::SyntaxError;
 use crate::app::framework::Framework;
