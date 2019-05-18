@@ -275,7 +275,6 @@ impl Sequence {
                             }),
                         })
                     };
-                    println!(" {:?}", ast);
                     return Ok(ast);
                 }
                 _ => {
@@ -285,74 +284,80 @@ impl Sequence {
     }
 }
 
-fn parse_options(tokens: &Vec<Token>) -> Result<Vec<Box<Ast>>, SyntaxError> {
-    let mut stream = tokens.iter().peekable();
-    let mut options: Vec<Box<Ast>> = Vec::new();
+fn to_vec_of_ast(v: Vec<(Token, Vec<Token>)>) -> Vec<Box<Ast>> {
+    return v.into_iter().map(|(param_name, params)| {
+        let params_ast = (&params).into_iter().map(|t| Box::new(t.to_ast())
+        ).collect::<Vec<Box<Ast>>>();
+        return (param_name.to_ast(), params_ast);
+    }).collect::<Vec<(Ast, Vec<Box<Ast>>)>>()
+        .into_iter().map(|(name, options)| (
+        Box::new(Ast::Param { param_name: Box::new(name), param_options: Box::new(Ast::Set(options)) })
+    )).collect::<Vec<Box<Ast>>>();
+}
 
-    // TODO to function to---------------------------------------------------------------------------------------------
-    // peek() does not consume
-    while let Some(&token) = stream.peek() {
-        match &token {
-            _ if token.is_name() => {
-                // the token-column-option's option-params
-                let column_name = token.clone();
-                if let Some(Token::LMidParen) = stream.next() {
+fn parse_options_recursive<'a>(tokens: &Vec<Token>, options: &'a mut Vec<Box<Ast>>) -> Result<&'a mut Vec<Box<Ast>>, SyntaxError> {
+    let mut stream = tokens.iter();
+    let token_opt = stream.next();
+    if token_opt.is_none() { return Ok(options); }
+    let token = token_opt.unwrap();
+    let other_options = match &token {
+        _ if token.is_name() => {
+            // the token-column-option's option-params
+            let column_name = token.clone();
+            if let Some(Token::LMidParen) = stream.next() {
 
-                    // split to (target column and the options, others)
-                    let mut separated: Vec<Vec<Token>> = vec!();
+                // split to (target column and the options, others)
+                let mut separated: Vec<Vec<Token>> = vec!();
 // split at last of first option from first left mid -paren
-                    let stream_dummy: Vec<Token> = stream.clone().map(|t| t.clone()).collect();
-                    for group in stream_dummy.splitn(2, |t| t.is_r_mid_paren()) {
-                        separated.push(group.to_vec());
-                    }
-                    let mut column_body = separated[0].clone();
-                    let mut other_options = separated[1].clone();
-                    if column_body.len() == 0 {
-                        return Err(SyntaxError::NoOption(column_name));
-                    }
-
-
-                    // to Ast from checked body
-                    let (head, body) = split_with_head_and_separator(&mut column_body, |t| t.is_name_colon());
-                    if head.len() != 0 {
-                        // pattern column_body is:      hogehoge :param1 param_opt1 param_opt2
-                        return Err(SyntaxError::UnknownOptionParam(head[0].clone()));
-                    }
-                    let body_ast = body.into_iter().map(|(param_name, params)| {
-                        let params_ast = (&params).into_iter().map(|t| Box::new(t.to_ast())
-                        ).collect::<Vec<Box<Ast>>>();
-                        return (param_name.to_ast(), params_ast);
-                    }).collect::<Vec<(Ast, Vec<Box<Ast>>)>>()
-                        .into_iter().map(|(name, options)| (
-                        Box::new(Ast::Param { param_name: Box::new(name), param_options: Box::new(Ast::Set(options)) })
-                    )).collect::<Vec<Box<Ast>>>();
-
-                    // set the checked column option with the params
-                    let column_opt = Box::new(
-                        Ast::ColumnOption {
-                            option_name: Box::new(column_name.to_ast()),
-                            option_params: Box::new(Ast::Set(body_ast)),
-                        }
-                    );
-                    options.push(column_opt.clone());
-
-                    // //////////////
-                    // update stream
-                    stream = other_options.iter().peekable();
-                    continue;
-                } else {
-                    return Err(SyntaxError::UnknownOptionParam(token.clone()));
+                let stream_dummy: Vec<Token> = stream.clone().map(|t| t.clone()).collect();
+                for group in stream_dummy.splitn(2, |t| t.is_r_mid_paren()) {
+                    separated.push(group.to_vec());
                 }
-                // TODO -----------------------------------------------------------------------
-            }
-            _ if token.is_name_colon() => {
-                // TODO the token-table-option's option-params or no option-params
-            }
-            _ => {
-                return Err(SyntaxError::UnknownError);
+                let mut column_body = separated[0].clone();
+                let mut other_options = separated[1].clone();
+                if column_body.len() == 0 {
+                    return Err(SyntaxError::NoOption(column_name));
+                }
+
+
+                // to Ast from checked body
+                let (head, body) = split_with_head_and_separator(&mut column_body, |t| t.is_name_colon());
+                if head.len() != 0 {
+                    // pattern column_body is:      hogehoge :param1 param_opt1 param_opt2
+                    return Err(SyntaxError::UnknownOptionParam(head[0].clone()));
+                }
+                let body_ast = to_vec_of_ast(body);
+
+                // set the checked column option with the params
+                let column_opt = Box::new(
+                    Ast::ColumnOption {
+                        option_name: Box::new(column_name.to_ast()),
+                        option_params: Box::new(Ast::Set(body_ast)),
+                    }
+                );
+                options.push(column_opt.clone());
+
+                // //////////////
+                // update stream
+                other_options
+            } else {
+                return Err(SyntaxError::UnknownOptionParam(token.clone()));
             }
         }
-    }
+        _ if token.is_name_colon() => {
+            // TODO the token-table-option's option-params or no option-params
+            Vec::new()
+        }
+        _ => {
+            return Err(SyntaxError::UnknownError);
+        }
+    };
+    return parse_options_recursive(&other_options, options);
+}
+
+fn parse_options(tokens: &Vec<Token>) -> Result<Vec<Box<Ast>>, SyntaxError> {
+    let mut options: Vec<Box<Ast>> = Vec::new();
+    parse_options_recursive(tokens, &mut options);
     return Ok(options);
 
     /*
