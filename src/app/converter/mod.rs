@@ -74,7 +74,7 @@ pub fn convert_to_migration_file<'a, 'b>(
         println!("-- ast start --");
         let c = tokens.clone();
         let ast = c.parse()?;
-        println!("{:?}", ast);
+        println!("{}", ast);
         println!("--ast finish--");
     }
 

@@ -26,7 +26,7 @@ impl ToAst for Token {
         match self {
             Token::LMidParen => { Ast::None }
             Token::RMidParen => { Ast::None }
-            Token::Name(s) => { s.to_string().to_ast() }
+            Token::Name(s) => { Ast::ColumnString(s.to_string()) }
             Token::NameColon(s) => { s.to_string().to_ast() }
             Token::Ymd(y, m, d) => {
                 Ast::Ymd(Box::new(y.to_ast()), Box::new(m.to_ast()), Box::new(d.to_ast()))
