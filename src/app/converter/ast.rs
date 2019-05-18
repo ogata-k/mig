@@ -5,8 +5,10 @@ pub enum Ast {
     Options { table_define: Box<Ast> },
     Set(Vec<Box<Ast>>),
     // option_param: Set
-    ColumnOption { option_name: Box<Ast>, option_param: Box<Ast> },
-    TableOption { option_name: Box<Ast>, option_param: Box<Ast> },
+    // option_name: String, option_params: Set(Param)
+    ColumnOption { option_name: Box<Ast>, option_params: Box<Ast> },
+    TableOption { option_name: Box<Ast>, option_params: Box<Ast> },
+    Param { param_name: Box<Ast>, param_options: Box<Ast> },
     Ymd(Box<Ast>, Box<Ast>, Box<Ast>),
     Time(Box<Ast>, Box<Ast>, Box<Ast>),
     DateTime(Box<Ast>, Box<Ast>, Box<Ast>, Box<Ast>, Box<Ast>, Box<Ast>),

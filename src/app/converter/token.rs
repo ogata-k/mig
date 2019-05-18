@@ -1,3 +1,5 @@
+use std::cmp::min;
+
 use crate::app::converter::ast::{Ast, ToAst};
 use crate::app::converter::mig::Mig;
 use crate::app::converter::syntax::SyntaxError;
@@ -22,16 +24,16 @@ pub enum Token {
 impl ToAst for Token {
     fn to_ast(&self) -> Ast {
         match self {
-            Token::LMidParen => { Ast::None },
-            Token::RMidParen => { Ast::None },
-            Token::Name(s) => { s.to_string().to_ast()},
-            Token::NameColon(s) => { s.to_string().to_ast() },
+            Token::LMidParen => { Ast::None }
+            Token::RMidParen => { Ast::None }
+            Token::Name(s) => { s.to_string().to_ast() }
+            Token::NameColon(s) => { s.to_string().to_ast() }
             Token::Ymd(y, m, d) => {
                 Ast::Ymd(Box::new(y.to_ast()), Box::new(m.to_ast()), Box::new(d.to_ast()))
-            },
+            }
             Token::Time(h, m, s) => {
                 Ast::Time(Box::new(h.to_ast()), Box::new(m.to_ast()), Box::new(s.to_ast()))
-            },
+            }
             Token::DateTime(y, m, d, hour, min, sec) => {
                 Ast::DateTime(
                     Box::new(y.to_ast()),
@@ -39,12 +41,12 @@ impl ToAst for Token {
                     Box::new(d.to_ast()),
                     Box::new(hour.to_ast()),
                     Box::new(min.to_ast()),
-                    Box::new(sec.to_ast())
+                    Box::new(sec.to_ast()),
                 )
-            },
-            Token::Integer(i) => {i.to_ast()},
-            Token::Double(d) => {d.to_ast()},
-            Token::String(s) => {s.to_ast()},
+            }
+            Token::Integer(i) => { i.to_ast() }
+            Token::Double(d) => { d.to_ast() }
+            Token::String(s) => { s.to_ast() }
         }
     }
 }
@@ -73,7 +75,7 @@ impl Token {
 
     pub fn is_name_with(&self, name: String) -> bool {
         return match &self {
-            Token::Name(name) => true,
+            Token::Name(s) if *s == name => true,
             _ => false,
         };
     }
@@ -87,7 +89,7 @@ impl Token {
 
     pub fn is_name_colon_with(&self, name_colon: String) -> bool {
         return match &self {
-            &Token::NameColon(name_colon) => true,
+            &Token::NameColon(s) if *s == name_colon => true,
             _ => false,
         };
     }
@@ -101,7 +103,9 @@ impl Token {
 
     pub fn is_ymd_with(&self, year: u16, month: u8, day: u8) -> bool {
         return match &self {
-            &Token::Ymd(year, month, day) => true,
+            &Token::Ymd(y, m, d)
+            if (*y == year && *m == month && *d == day)
+            => true,
             _ => false,
         };
     }
@@ -115,7 +119,9 @@ impl Token {
 
     pub fn is_time_with(&self, hour: u8, minute: u8, second: u8) -> bool {
         return match &self {
-            &Token::Time(hour, minute, second) => true,
+            &Token::Time(h, m, s)
+            if (*h == hour && *m == minute && *s == second)
+            => true,
             _ => false,
         };
     }
@@ -130,7 +136,9 @@ impl Token {
     pub fn is_date_time_with(&self, year: u16, month: u8, day: u8, hour: u8, minute: u8, second: u8)
                              -> bool {
         return match &self {
-            &Token::DateTime(year, month, day, hour, minute, second) => true,
+            &Token::DateTime(y, mon, d, h, min, s)
+            if (*y == year && *mon == month && *d == day && *h == hour && *min == minute && *s == second)
+            => true,
             _ => false,
         };
     }
@@ -144,7 +152,7 @@ impl Token {
 
     pub fn is_integer_with(&self, int: i16) -> bool {
         return match &self {
-            &Token::Integer(int) => true,
+            &Token::Integer(i) if *i == int => true,
             _ => false,
         };
     }
@@ -158,7 +166,7 @@ impl Token {
 
     pub fn is_double_with(&self, dbl: f32) -> bool {
         return match &self {
-            &Token::Double(dbl) => true,
+            &Token::Double(d) if *d == dbl => true,
             _ => false,
         };
     }
@@ -170,9 +178,9 @@ impl Token {
         };
     }
 
-    pub fn is_string_with(&self, s: String) -> bool {
+    pub fn is_string_with(&self, string: String) -> bool {
         return match &self {
-            &Token::String(s) => true,
+            &Token::String(s) if *s == string => true,
             _ => false,
         };
     }
@@ -253,7 +261,7 @@ impl Sequence {
                 (Token::NameColon(method), Token::Name(table_name), Token::LMidParen, Token::RMidParen)
                 => {
                     // set table params of Mig
-                    let mut ast = Ast::new(method.clone(), table_name.clone());
+                    let ast = Ast::new(method.clone(), table_name.clone());
                     let l = tokens.len();
                     // TODO not impl yet parse_options
                     let ast: Ast = Ast::Program {
@@ -262,7 +270,7 @@ impl Sequence {
                             table_name: Box::new(Ast::String(table_name.to_string())),
                             table_define: Box::new(Ast::Options {
                                 table_define: Box::new(Ast::Set(
-                                    parse_options(&mut tokens[3..l - 1].to_vec())?
+                                    parse_options(&tokens[3..l - 1].to_vec())?
                                 )),
                             }),
                         })
@@ -279,90 +287,139 @@ impl Sequence {
 
 fn parse_options(tokens: &Vec<Token>) -> Result<Vec<Box<Ast>>, SyntaxError> {
     let mut stream = tokens.iter().peekable();
-    let res_vec = Vec::new();
+    let mut options: Vec<Box<Ast>> = Vec::new();
 
+    // TODO to function to---------------------------------------------------------------------------------------------
     // peek() does not consume
-    while None != stream.peek() {
-        // TODO
-    }
+    while let Some(&token) = stream.peek() {
+        match &token {
+            _ if token.is_name() => {
+                // the token-column-option's option-params
+                let column_name = token.clone();
+                if let Some(Token::LMidParen) = stream.next() {
 
-    return Ok(res_vec);
-
-
-
-
-    match &seq[0] {
-// columns is Name { many1 option }
-        Token::Name(name) => {
-            if seq[1].is_l_mid_paren() {
-                let mut separated: Vec<Vec<Token>> = vec!();
+                    // split to (target column and the options, others)
+                    let mut separated: Vec<Vec<Token>> = vec!();
 // split at last of first option from first left mid -paren
-                for group in seq[2..].splitn(2, |t| t.is_r_mid_paren()) {
-                    separated.push(group.to_vec());
-                }
+                    let stream_dummy: Vec<Token> = stream.clone().map(|t| t.clone()).collect();
+                    for group in stream_dummy.splitn(2, |t| t.is_r_mid_paren()) {
+                        separated.push(group.to_vec());
+                    }
+                    let mut column_body = separated[0].clone();
+                    let mut other_options = separated[1].clone();
+                    if column_body.len() == 0 {
+                        return Err(SyntaxError::NoOption(column_name));
+                    }
 
-                // this column
-                let column_options = &(separated[0]);
-                // other column or table
-                let others = &(separated[1]);
 
-                if column_options.len() == 0 {
-                    return Err(SyntaxError::NoOption(Token::Name(name.to_string())));
-                }
+                    // to Ast from checked body
+                    let (head, body) = split_with_head_and_separator(&mut column_body, |t| t.is_name_colon());
+                    if head.len() != 0 {
+                        // pattern column_body is:      hogehoge :param1 param_opt1 param_opt2
+                        return Err(SyntaxError::UnknownOptionParam(head[0].clone()));
+                    }
+                    let body_ast = body.into_iter().map(|(param_name, params)| {
+                        let params_ast = (&params).into_iter().map(|t| Box::new(t.to_ast())
+                        ).collect::<Vec<Box<Ast>>>();
+                        return (param_name.to_ast(), params_ast);
+                    }).collect::<Vec<(Ast, Vec<Box<Ast>>)>>()
+                        .into_iter().map(|(name, options)| (
+                        Box::new(Ast::Param { param_name: Box::new(name), param_options: Box::new(Ast::Set(options)) })
+                    )).collect::<Vec<Box<Ast>>>();
 
-                let mut col_opt =
-                    parse_column_opt(name.to_string(), column_options.clone())?;
-                if others.len() != 0 {
-                    col_opt.append(&mut parse_options(&others.clone())?)
+                    // set the checked column option with the params
+                    let column_opt = Box::new(
+                        Ast::ColumnOption {
+                            option_name: Box::new(column_name.to_ast()),
+                            option_params: Box::new(Ast::Set(body_ast)),
+                        }
+                    );
+                    options.push(column_opt.clone());
+
+                    // //////////////
+                    // update stream
+                    stream = other_options.iter().peekable();
+                    continue;
+                } else {
+                    return Err(SyntaxError::UnknownOptionParam(token.clone()));
                 }
-                return Ok(col_opt);
+                // TODO -----------------------------------------------------------------------
             }
-
-            return Err(SyntaxError::UnknownError);
-        }
-// table_option is NameColon { many1 option and option has Name } or NameColon
-        Token::NameColon(name_c) => {
-            if seq[1].is_l_mid_paren() {
-                let mut separated: Vec<Vec<Token>> = vec!();
-                for group in seq[2..].splitn(2, |t| t.is_r_mid_paren()) {
-                    separated.push(group.to_vec());
-                }
-
-                // this table
-                let table_options = &(separated[0]);
-
-                // other tables or columns
-                let others = &(separated[1]);
-
-                if table_options.len() == 0 {
-                    return Err(SyntaxError::NoOption(Token::NameColon(name_c.to_string())));
-                }
-
-                let mut table_opt =
-                    parse_table_opt(name_c.to_string(), table_options.clone())?;
-                if others.len() != 0 {
-                    table_opt.append(&mut parse_options(others)?);
-                }
-                return Ok(table_opt);
+            _ if token.is_name_colon() => {
+                // TODO the token-table-option's option-params or no option-params
             }
-            // TODO modify when table option has no options
-            mig.add_table_options(t.clone(), &mut vec!());
-            let mut seq_dummy =
-                seq[1..].to_vec().clone();
-            return parse_options(&seq_dummy);
+            _ => {
+                return Err(SyntaxError::UnknownError);
+            }
         }
-        _ => { Err(SyntaxError::UnknownError) }
     }
-}
+    return Ok(options);
 
-fn parse_column_opt(name: String, column_options: Vec<Token>) -> Result<Vec<Box<Ast>>, SyntaxError> {
-// TODO
-}
+    /*
+        match &seq[0] {
+    // columns is Name { many1 option }
+            Token::Name(name) => {
+                if seq[1].is_l_mid_paren() {
+                    let mut separated: Vec<Vec<Token>> = vec!();
+    // split at last of first option from first left mid -paren
+                    for group in seq[2..].splitn(2, |t| t.is_r_mid_paren()) {
+                        separated.push(group.to_vec());
+                    }
 
-fn parse_table_opt(name: String, table_options: Vec<Token>) -> Result<Vec<Box<Ast>>, SyntaxError> {
-// TODO
-}
+                    // this column
+                    let column_options = &(separated[0]);
+                    // other column or table
+                    let others = &(separated[1]);
 
+                    if column_options.len() == 0 {
+                        return Err(SyntaxError::NoOption(Token::Name(name.to_string())));
+                    }
+
+                    let mut col_opt =
+                        parse_column_opt(name.to_string(), column_options.clone())?;
+                    if others.len() != 0 {
+                        col_opt.append(&mut parse_options(&others.clone())?)
+                    }
+                    return Ok(col_opt);
+                }
+
+                return Err(SyntaxError::UnknownError);
+            }
+    // table_option is NameColon { many1 option and option has Name } or NameColon
+            Token::NameColon(name_c) => {
+                if seq[1].is_l_mid_paren() {
+                    let mut separated: Vec<Vec<Token>> = vec!();
+                    for group in seq[2..].splitn(2, |t| t.is_r_mid_paren()) {
+                        separated.push(group.to_vec());
+                    }
+
+                    // this table
+                    let table_options = &(separated[0]);
+
+                    // other tables or columns
+                    let others = &(separated[1]);
+
+                    if table_options.len() == 0 {
+                        return Err(SyntaxError::NoOption(Token::NameColon(name_c.to_string())));
+                    }
+
+                    let mut table_opt =
+                        parse_table_opt(name_c.to_string(), table_options.clone())?;
+                    if others.len() != 0 {
+                        table_opt.append(&mut parse_options(others)?);
+                    }
+                    return Ok(table_opt);
+                }
+                // TODO modify when table option has no options
+                mig.add_table_options(t.clone(), &mut vec!());
+                let mut seq_dummy =
+                    seq[1..].to_vec().clone();
+                return parse_options(&seq_dummy);
+            }
+            _ => { Err(SyntaxError::UnknownError) }
+        }
+    */
+}
 
 fn analyze_columns_or_table_options<'a>(mig: &'a mut Mig, tokens: &mut Vec<Token>) -> Result<&'a mut Mig, SyntaxError> {
     let seq = tokens.clone();
