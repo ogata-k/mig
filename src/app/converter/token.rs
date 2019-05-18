@@ -296,16 +296,18 @@ fn to_vec_of_ast(v: Vec<(Token, Vec<Token>)>) -> Vec<Box<Ast>> {
 }
 
 fn parse_options_recursive<'a>(tokens: &Vec<Token>, options: &'a mut Vec<Box<Ast>>) -> Result<&'a mut Vec<Box<Ast>>, SyntaxError> {
-    let mut stream = tokens.iter();
+    let mut stream = tokens.iter().peekable();
     let token_opt = stream.next();
     if token_opt.is_none() { return Ok(options); }
     let token = token_opt.unwrap();
     let other_options = match &token {
         _ if token.is_name() => {
+            let body_empty_ok = true;
+
             // the token-column-option's option-params
             let column_name = token.clone();
-            if let Some(Token::LMidParen) = stream.next() {
-
+            if let Some(Token::LMidParen) = stream.peek() {
+                stream.next();
                 // split to (target column and the options, others)
                 let mut separated: Vec<Vec<Token>> = vec!();
 // split at last of first option from first left mid -paren
@@ -326,6 +328,9 @@ fn parse_options_recursive<'a>(tokens: &Vec<Token>, options: &'a mut Vec<Box<Ast
                     // pattern column_body is:      hogehoge :param1 param_opt1 param_opt2
                     return Err(SyntaxError::UnknownOptionParam(head[0].clone()));
                 }
+                if body.len() == 0 {
+                    return Err(SyntaxError::NoOption(column_name));
+                }
                 let body_ast = to_vec_of_ast(body);
 
                 // set the checked column option with the params
@@ -340,6 +345,14 @@ fn parse_options_recursive<'a>(tokens: &Vec<Token>, options: &'a mut Vec<Box<Ast
                 // //////////////
                 // update stream
                 other_options
+            } else if body_empty_ok {
+                // possible, when option has no-params
+                let opt = Ast::ColumnOption {
+                    option_name: Box::new(column_name.to_ast()),
+                    option_params: Box::new(Ast::Set(Vec::new())),
+                };
+                options.push(Box::new(opt));
+                return parse_options_recursive(&stream.map(|t| t.clone()).collect(), options);
             } else {
                 return Err(SyntaxError::UnknownOptionParam(token.clone()));
             }
