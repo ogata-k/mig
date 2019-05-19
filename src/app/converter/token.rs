@@ -331,7 +331,7 @@ fn parse_options_recursive<'a>(tokens: &Vec<Token>, options: &'a mut Vec<Box<Ast
             } else {
                 return Err(SyntaxError::UnknownOptionParam(token.clone()));
             }
-        }
+        },
         _ if token.is_name_colon() => {
             let body_empty_ok = true;
 
@@ -366,7 +366,7 @@ fn parse_options_recursive<'a>(tokens: &Vec<Token>, options: &'a mut Vec<Box<Ast
 
                 // set the checked column option with the params
                 let column_opt = Box::new(
-                    Ast::ColumnOption {
+                    Ast::TableOption {
                         option_name: Box::new(column_name.to_ast()),
                         option_params: Box::new(Ast::Set(body_ast)),
                     }
@@ -387,7 +387,7 @@ fn parse_options_recursive<'a>(tokens: &Vec<Token>, options: &'a mut Vec<Box<Ast
             } else {
                 return Err(SyntaxError::UnknownOptionParam(token.clone()));
             }
-        }
+        },
         _ => {
             return Err(SyntaxError::UnknownError);
         }

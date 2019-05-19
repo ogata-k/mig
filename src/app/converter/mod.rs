@@ -72,7 +72,7 @@ pub fn convert_to_migration_file<'a, 'b>(
 
     let c = tokens.clone();
     let ast = c.parse()?;
-    println!("{}", ast);
+    println!("{:?}", ast);
 
     println!("finish parsing data");
 
