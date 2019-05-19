@@ -236,19 +236,12 @@ impl Sequence {
                 (Token::NameColon(method), Token::Name(table_name), Token::LMidParen, Token::RMidParen)
                 => {
                     // set table params of Mig
-                    let ast = Ast::new(method.clone(), table_name.clone());
                     let l = tokens.len();
-                    let ast: Ast = Ast::Program {
-                        start: Box::new(Ast::Method {
-                            method: Box::new(Ast::String(method.to_string())),
-                            table_name: Box::new(Ast::String(table_name.to_string())),
-                            table_define: Box::new(Ast::Options {
-                                table_define: Box::new(Ast::Set(
-                                    parse_options(&tokens[3..l - 1].to_vec())?
-                                )),
-                            }),
-                        })
-                    };
+                    let ast = Ast::new(
+                        method.clone(),
+                        table_name.clone(),
+                        parse_options(&tokens[3..l - 1].to_vec())?,
+                    );
                     return Ok(ast);
                 }
                 _ => {
