@@ -70,25 +70,18 @@ pub fn convert_to_migration_file<'a, 'b>(
 
     println!("analyze parsing data...");
 
-    {
-        println!("-- ast start --");
-        let c = tokens.clone();
-        let ast = c.parse()?;
-        println!("{}", ast);
-        println!("--ast finish--");
-    }
+    let c = tokens.clone();
+    let ast = c.parse()?;
+    println!("{}", ast);
 
-    let mig = tokens.analyze_syntax()?;
-    println!("{}", "-".repeat(50));
-    println!("Mig:  {:?}", mig);
-    println!("finish analyzing data");
+    println!("finish parsing data");
 
     println!("writing data in output file");
     { // limit lifetime
         let out = output.clone();
         let name_space = out.parent().unwrap().to_str().unwrap();
         let mut output_file = File::create(output)?;
-        let content: String = mig.generate_string_for(framework, name_space.to_string());
+        let content: String = format!("{}", ast);//mig.generate_string_for(framework, name_space.to_string());
         output_file.write_all(&content.into_bytes())?;
         output_file.flush()?;
     }
