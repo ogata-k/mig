@@ -1,3 +1,5 @@
+use crate::app::converter::token::Token;
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum Ast {
     Program { start: Box<Ast> },
@@ -102,14 +104,40 @@ impl std::fmt::Display for Ast {
 }
 
 impl Ast {
-    pub fn new(method: String, table_name: String) -> Self {
+    pub fn new_ast(method: String, table_name: String, table_body: Vec<Box<Ast>>) -> Self {
         Ast::Program {
             start: Box::new(Ast::Method {
                 method: Box::new(Ast::String(method)),
                 table_name: Box::new(Ast::String(table_name)),
-                table_define: Box::new(Ast::Set(Vec::new())),
+                table_define: Box::new(Ast::Set(table_body)),
             })
+        }
+    }
+
+    pub fn new_column_option(column_name: Token, body: Vec<(Token, Vec<Token>)>) -> Self {
+        let body_ast = to_vec_of_ast(body);
+        return Ast::ColumnOption {
+            option_name: Box::new(column_name.to_ast()),
+            option_params: Box::new(Ast::Set(body_ast)),
+        }
+    }
+
+    pub fn new_table_option(column_name: Token, body: Vec<(Token, Vec<Token>)>) -> Self {
+        let body_ast = to_vec_of_ast(body);
+        return Ast::TableOption {
+            option_name: Box::new(column_name.to_ast()),
+            option_params: Box::new(Ast::Set(body_ast)),
         }
     }
 }
 
+fn to_vec_of_ast(v: Vec<(Token, Vec<Token>)>) -> Vec<Box<Ast>> {
+    return v.into_iter().map(|(param_name, params)| {
+        let params_ast = (&params).into_iter().map(|t| Box::new(t.to_ast())
+        ).collect::<Vec<Box<Ast>>>();
+        return (param_name.to_ast(), params_ast);
+    }).collect::<Vec<(Ast, Vec<Box<Ast>>)>>()
+        .into_iter().map(|(name, options)| (
+        Box::new(Ast::Param { param_name: Box::new(name), param_options: Box::new(Ast::Set(options)) })
+    )).collect::<Vec<Box<Ast>>>();
+}
