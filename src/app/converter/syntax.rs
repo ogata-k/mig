@@ -8,6 +8,7 @@ pub enum SyntaxError {
     UnknownOptionName(Token),
     UnknownOptionParam(Token),
     TooShort,
+    CorrectSyntax,
     UnknownError,
 }
 
@@ -18,6 +19,7 @@ impl Display for SyntaxError {
             SyntaxError::TooShort => write!(f, "input file has not enough num of tokens"),
             SyntaxError::UnknownError => write!(f, "occurred unknown syntax error"),
             SyntaxError::UnknownOptionName(t) => write!(f, "{:?} is not option name", t),
+            SyntaxError::CorrectSyntax => write!(f, "not correct syntax "),
             SyntaxError::UnknownOptionParam(t) => write!(f, "{:?} is not option parameter", t),
         }
     }

@@ -4,6 +4,7 @@
         :string 10.01 3.14 0.12 31  -32 -32.4
         :default "guest: mig"
     }
+    oldd{}
     old{
         :tiny-int
         :unsigned
