@@ -72,7 +72,7 @@ pub fn convert_to_migration_file<'a, 'b>(
 
     let c = tokens.clone();
     let ast = c.parse()?;
-    // TODO なぜかolddd{}のパースが成功する
+    // TODO なぜかolddd{}のパースが成功する.おそらく買い先がうまくいったところまでを判定しているため
     println!("{:?}", ast);
     if !ast.check_syntax() {
         return Err(ConverterError::Syntax(SyntaxError::CorrectSyntax));
