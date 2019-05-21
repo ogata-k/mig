@@ -70,20 +70,23 @@ pub fn convert_to_migration_file<'a, 'b>(
 
     println!("analyze parsing data...");
 
-    let ast = tokens.parse()?;
+    let mut ast = tokens.parse()?;
     println!("{:?}", ast);
     if !ast.check_syntax() {
         return Err(ConverterError::Syntax(SyntaxError::CorrectSyntax));
     }
-
     println!("finish parsing data");
 
     println!("writing data in output file");
+    ast.optimize();
+    let ast = ast;  // fix ast
     { // limit lifetime
         let out = output.clone();
         let name_space = out.parent().unwrap().to_str().unwrap();
         let mut output_file = File::create(output)?;
-        let content: String = format!("{}\n\n{:?}", ast, ast);//mig.generate_string_for(framework, name_space.to_string());
+        // TODO Replace: let content = ast.gen_content_for(frame_work, config_file_of(frame_work), name_space);
+        //                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ into gen_content_for function?
+        let content: String = format!("{}\n\n{:?}", ast, ast);
         output_file.write_all(&content.into_bytes())?;
         output_file.flush()?;
     }

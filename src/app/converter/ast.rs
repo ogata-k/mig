@@ -340,6 +340,10 @@ impl Ast {
     fn check_none(&self) -> bool {
         return false;
     }
+
+    pub fn optimize(&mut self){
+        // TODO for example, unique options and params.....
+    }
 }
 
 fn to_vec_of_ast(v: Vec<(Token, Vec<Token>)>) -> Vec<Box<Ast>> {
