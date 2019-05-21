@@ -361,6 +361,6 @@ fn parse_options_recursive<'a>(tokens: &Vec<Token>, options: &'a mut Vec<Box<Ast
 
 fn parse_options(tokens: &Vec<Token>) -> Result<Vec<Box<Ast>>, SyntaxError> {
     let mut options: Vec<Box<Ast>> = Vec::new();
-    parse_options_recursive(tokens, &mut options);
+    parse_options_recursive(tokens, &mut options)?;
     return Ok(options);
 }
