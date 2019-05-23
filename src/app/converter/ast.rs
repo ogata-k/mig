@@ -4,7 +4,9 @@ use crate::app::converter::token::Token;
 pub enum Ast {
     Program { start: Box<Ast> },
     Method { method: Box<Ast>, table_name: Box<Ast>, table_define: Box<Ast> },
-    Set(Vec<Box<Ast>>),
+    Options(Vec<Box<Ast>>),
+    Params(Vec<Box<Ast>>),
+    ParamOptions(Vec<Box<Ast>>),
     // option_param: Set
     // option_name: String, option_params: Set(Param)
     ColumnOption { option_name: Box<Ast>, option_params: Box<Ast> },
@@ -64,8 +66,20 @@ impl std::fmt::Display for Ast {
             Ast::Method { method: method, table_name: name, table_define: body } => {
                 write!(f, "{} {} {{{}\n}}", method, name, body)
             }
-            Ast::Set(set) => {
-                for ast in set.iter() {
+            Ast::Options(options) => {
+                for ast in options.iter() {
+                    write!(f, "\n{}", ast);
+                }
+                Ok(())
+            },
+            Ast::Params(params) => {
+                for ast in params.iter() {
+                    write!(f, "\n{}", ast);
+                }
+                Ok(())
+            },
+            Ast::ParamOptions(params) => {
+                for ast in params.iter() {
                     write!(f, "\n{}", ast);
                 }
                 Ok(())
@@ -107,7 +121,7 @@ impl Ast {
             start: Box::new(Ast::Method {
                 method: Box::new(Ast::String(method)),
                 table_name: Box::new(Ast::String(table_name)),
-                table_define: Box::new(Ast::Set(table_body)),
+                table_define: Box::new(Ast::Options(table_body)),
             })
         }
     }
@@ -116,7 +130,7 @@ impl Ast {
         let body_ast = to_vec_of_ast(body);
         return Ast::ColumnOption {
             option_name: Box::new(column_name.to_ast()),
-            option_params: Box::new(Ast::Set(body_ast)),
+            option_params: Box::new(Ast::Params(body_ast)),
         };
     }
 
@@ -124,7 +138,7 @@ impl Ast {
         let body_ast = to_vec_of_ast(body);
         return Ast::TableOption {
             option_name: Box::new(column_name.to_ast()),
-            option_params: Box::new(Ast::Set(body_ast)),
+            option_params: Box::new(Ast::Params(body_ast)),
         };
     }
 
@@ -150,7 +164,7 @@ impl Ast {
 
     fn check_options(&self) -> bool {
         return match self {
-            Ast::Set(options) => {
+            Ast::Options(options) => {
                 options.iter().all(|option|
                     option.check_column_option() || option.check_table_option()
                 )
@@ -174,7 +188,7 @@ impl Ast {
 
     fn check_column_params(&self) -> bool {
         return match self {
-            Ast::Set(params) => {
+            Ast::Params(params) => {
                 if params.is_empty() {
                     false
                 } else {
@@ -199,7 +213,7 @@ impl Ast {
 
     fn check_column_option_param_options(&self) -> bool {
         return match self {
-            Ast::Set(options) => {
+            Ast::ParamOptions(options) => {
                 options.iter().all(|option|
                     option.check_column_option_param_option()
                 )
@@ -233,7 +247,7 @@ impl Ast {
 
     fn check_table_params(&self) -> bool {
         return match self {
-            Ast::Set(params) => {
+            Ast::Params(params) => {
                 params.iter().all(|param|
                     param.check_table_param()
                 )
@@ -254,7 +268,7 @@ impl Ast {
 
     fn check_table_option_param_options(&self) -> bool {
         return match self {
-            Ast::Set(options) => {
+            Ast::ParamOptions(options) => {
                 options.iter().all(|option|
                     option.check_table_option_param_option()
                 )
@@ -342,6 +356,7 @@ impl Ast {
     }
 
     pub fn optimize(&mut self){
+        let mut ast = self;
         // TODO for example, unique options and params.....
         // TODO convert to unique
         // 0. options用のSetが出てくるまでAstを潜る
@@ -359,6 +374,6 @@ fn to_vec_of_ast(v: Vec<(Token, Vec<Token>)>) -> Vec<Box<Ast>> {
         return (param_name.to_ast(), params_ast);
     }).collect::<Vec<(Ast, Vec<Box<Ast>>)>>()
         .into_iter().map(|(name, options)| (
-        Box::new(Ast::Param { param_name: Box::new(name), param_options: Box::new(Ast::Set(options)) })
+        Box::new(Ast::Param { param_name: Box::new(name), param_options: Box::new(Ast::ParamOptions(options)) })
     )).collect::<Vec<Box<Ast>>>();
 }
