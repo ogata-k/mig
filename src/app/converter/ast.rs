@@ -71,13 +71,13 @@ impl std::fmt::Display for Ast {
                     write!(f, "\n{}", ast);
                 }
                 Ok(())
-            },
+            }
             Ast::Params(params) => {
                 for ast in params.iter() {
                     write!(f, "\n{}", ast);
                 }
                 Ok(())
-            },
+            }
             Ast::ParamOptions(params) => {
                 for ast in params.iter() {
                     write!(f, "\n{}", ast);
@@ -355,7 +355,7 @@ impl Ast {
         return false;
     }
 
-    pub fn optimize(&mut self){
+    pub fn optimize(&mut self) {
         let mut ast = self;
         // TODO for example, unique options and params.....
         // TODO convert to unique
@@ -364,6 +364,35 @@ impl Ast {
         // 2. 最後まで調べて元のものとポップして集めたものを入れ替える。
         // 3. 各オプションごとにparam_nameで同様に集めていく
         // 4. param_optionsにおいてあと勝ちになるように一意化していく
+    }
+
+    fn unique_rec(&mut self) {
+        // TODO 正しい構文であることが保証されているAstで再帰パターンマッチ
+        match self {
+            Ast::Program { start: start } => { start.unique_rec() }
+            Ast::Method { method: method, table_name: table_name, table_define: table_define } => { table_define.unique_rec() }
+            Ast::Options(options) => {
+                // TODO Option
+            }
+            Ast::Params(params) => {
+                // TODO Params
+            }
+            Ast::ParamOptions(param_options) => {
+                // TODO ParamOptions
+            }
+            Ast::ColumnOption { option_name: option_name, option_params: option_params } => { option_params.unique_rec() }
+            Ast::TableOption { option_name: option_name, option_params: option_params } => { option_params.unique_rec() }
+            Ast::Param { param_name: param_name, param_options: paramoptios } => { paramoptios.unique_rec() }
+            Ast::Ymd(y, m, d) => {}
+            Ast::Time(h, m, s) => {}
+            Ast::DateTime(year, month, date, hour, minute, second) => {}
+            Ast::UnsignedInteger(ui) => {}
+            Ast::Integer(i) => {}
+            Ast::Double(f) => {}
+            Ast::String(s) => {}
+            Ast::ColumnString(s) => {}
+            Ast::None => {}
+        }
     }
 }
 
