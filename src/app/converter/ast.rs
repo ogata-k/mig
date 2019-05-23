@@ -343,6 +343,12 @@ impl Ast {
 
     pub fn optimize(&mut self){
         // TODO for example, unique options and params.....
+        // TODO convert to unique
+        // 0. options用のSetが出てくるまでAstを潜る
+        // 1. option_nameで順にポップしてかき集め、ポップしたものと一致したものがあれば追記して次へ
+        // 2. 最後まで調べて元のものとポップして集めたものを入れ替える。
+        // 3. 各オプションごとにparam_nameで同様に集めていく
+        // 4. param_optionsにおいてあと勝ちになるように一意化していく
     }
 }
 
